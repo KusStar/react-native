@@ -337,13 +337,11 @@ jlong jni_YGNodeNewWithConfig(
   return reinterpret_cast<jlong>(node);
 }
 
-jlong jni_YGNodeNewByteBuffer(
-    alias_ref<jclass>,
-    alias_ref<JYogaNode> javaNode) {
+jlong jni_YGNodeNewNoProps(alias_ref<jclass>, alias_ref<JYogaNode> javaNode) {
   return jni_YGNodeNew(nullptr, javaNode);
 }
 
-jlong jni_YGNodeNewByteBufferWithConfig(
+jlong jni_YGNodeNewNoPropsWithConfig(
     alias_ref<jclass>,
     alias_ref<JYogaNode> javaNode,
     jlong configPointer) {
@@ -706,6 +704,14 @@ local_ref<JByteBuffer> jni_getLayoutBuffer(
       reinterpret_cast<uint8_t*>(layout), sizeof(YGLayout));
 }
 
+jlong jni_YGNodeStylePointer(alias_ref<jclass>, jlong nativePointer) {
+  return reinterpret_cast<jlong>(&_jlong2YGNodeRef(nativePointer)->getStyle());
+}
+
+jlong jni_YGNodeLayoutPointer(alias_ref<jclass>, jlong nativePointer) {
+  return reinterpret_cast<jlong>(&_jlong2YGNodeRef(nativePointer)->getLayout());
+}
+
 #define YGMakeNativeMethod(name) makeNativeMethod(#name, name)
 
 jint JNI_OnLoad(JavaVM *vm, void *) {
@@ -819,8 +825,8 @@ jint JNI_OnLoad(JavaVM *vm, void *) {
         {
             YGMakeNativeMethod(jni_YGNodeCloneNoProps),
             YGMakeNativeMethod(jni_YGNodeFree),
-            YGMakeNativeMethod(jni_YGNodeNewByteBuffer),
-            YGMakeNativeMethod(jni_YGNodeNewByteBufferWithConfig),
+            YGMakeNativeMethod(jni_YGNodeNewNoProps),
+            YGMakeNativeMethod(jni_YGNodeNewNoPropsWithConfig),
             YGMakeNativeMethod(jni_YGNodeReset),
             YGMakeNativeMethod(jni_YGNodeIsDirty),
             YGMakeNativeMethod(jni_getStyleBuffer),
@@ -830,6 +836,18 @@ jint JNI_OnLoad(JavaVM *vm, void *) {
         "com/facebook/yoga/YogaNodePropertiesHybrid",
         {
             YGMakeNativeMethod(jni_getStyleBuffer),
+        });
+    registerNatives(
+        "com/facebook/yoga/YogaNodePropertiesUnsafe",
+        {
+            YGMakeNativeMethod(jni_YGNodeCloneNoProps),
+            YGMakeNativeMethod(jni_YGNodeFree),
+            YGMakeNativeMethod(jni_YGNodeNewNoProps),
+            YGMakeNativeMethod(jni_YGNodeNewNoPropsWithConfig),
+            YGMakeNativeMethod(jni_YGNodeStylePointer),
+            YGMakeNativeMethod(jni_YGNodeLayoutPointer),
+            YGMakeNativeMethod(jni_YGNodeIsDirty),
+            YGMakeNativeMethod(jni_YGNodeReset),
         });
   });
 }
