@@ -206,6 +206,10 @@ bool YGNodeGetHasNewLayout(YGNodeRef node) {
   return node->getHasNewLayout();
 }
 
+void YGConfigSetPrintTreeFlag(YGConfigRef config, bool enabled) {
+  config->printTree = enabled;
+}
+
 void YGNodeSetHasNewLayout(YGNodeRef node, bool hasNewLayout) {
   node->setHasNewLayout(hasNewLayout);
 }
@@ -3480,7 +3484,6 @@ static void YGNodelayoutImpl(
 }
 
 uint32_t gDepth = 0;
-bool gPrintTree = false;
 bool gPrintChanges = false;
 bool gPrintSkips = false;
 
@@ -4056,7 +4059,7 @@ void YGNodeCalculateLayout(
         node->getLayout().direction, ownerWidth, ownerHeight, ownerWidth);
     YGRoundToPixelGrid(node, node->getConfig()->pointScaleFactor, 0.0f, 0.0f);
 
-    if (gPrintTree) {
+    if (node->getConfig()->printTree) {
       YGNodePrint(
           node,
           (YGPrintOptions)(
@@ -4108,7 +4111,7 @@ void YGNodeCalculateLayout(
       node->setLayoutDoesLegacyFlagAffectsLayout(
           !originalNode->isLayoutTreeEqualToNode(*node));
 
-      if (gPrintTree) {
+      if (originalNode->getConfig()->printTree) {
         YGNodePrint(
             originalNode,
             (YGPrintOptions)(
