@@ -29,8 +29,8 @@ import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.bridge.queue.ReactQueueConfigurationSpec;
 import com.facebook.react.bridge.CatalystInstanceImpl;
 import com.facebook.react.bridge.JSBundleLoader;
-import com.facebook.react.bridge.JSCJavaScriptExecutorFactory;
 import com.facebook.react.bridge.JavaScriptExecutor;
+import com.facebook.react.jscexecutor.JSCExecutorFactory;
 import com.facebook.react.modules.core.ReactChoreographer;
 
 import com.android.internal.util.Predicate;
@@ -72,7 +72,7 @@ public class ReactTestHelper {
         }
         JavaScriptExecutor executor = null;
         try {
-          executor = new JSCJavaScriptExecutorFactory("ReactTestHelperApp", "ReactTestHelperDevice").create();
+          executor = new JSCExecutorFactory("ReactTestHelperApp", "ReactTestHelperDevice").create();
         } catch (Exception e) {
           throw new RuntimeException(e);
         }
