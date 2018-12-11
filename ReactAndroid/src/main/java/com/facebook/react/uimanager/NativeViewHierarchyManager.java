@@ -387,7 +387,7 @@ public class NativeViewHierarchyManager {
                       viewsToAdd,
                       tagsToDelete));
         }
-        if (viewManager.getChildAt(viewToManage, indexToRemove) == null) {
+        if (indexToRemove >= viewManager.getChildCount(viewToManage)) {
           if (mRootTags.get(tag) && viewManager.getChildCount(viewToManage) == 0) {
             // This root node has already been removed (likely due to a threading issue caused by
             // async js execution). Ignore this root removal.
@@ -554,7 +554,7 @@ public class NativeViewHierarchyManager {
       ViewGroup view,
       ThemedReactContext themedContext) {
     if (view.getId() != View.NO_ID) {
-      FLog.e(
+      Log.e(
         TAG,
         "Trying to add a root view with an explicit id (" + view.getId() + ") already " +
         "set. React Native uses the id field to track react tags and will overwrite this field. " +
