@@ -120,6 +120,11 @@ afterEvaluate {
                         moveFunc.curry("xxxhdpi").call()
                     }
                 }
+
+                // Workaround for Android Gradle Plugin 3.4+ new asset directory
+                into ("merged_assets/${variant.name}/out") {
+                    from(jsBundleDir)
+                }
             }
 
             // Hook bundle${productFlavor}${buildType}JsAndAssets into the android build process
