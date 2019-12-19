@@ -78,6 +78,12 @@ public class ReactModalHostView extends ViewGroup implements LifecycleEventListe
   }
 
   @Override
+  protected void onDetachedFromWindow() {
+    super.onDetachedFromWindow();
+    dismiss();
+  }
+
+  @Override
   public void addView(View child, int index) {
     mHostView.addView(child, index);
   }
