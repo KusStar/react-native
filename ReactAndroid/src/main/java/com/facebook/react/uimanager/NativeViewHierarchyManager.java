@@ -38,6 +38,8 @@ import com.facebook.react.uimanager.layoutanimation.LayoutAnimationListener;
 import com.facebook.systrace.Systrace;
 import com.facebook.systrace.SystraceMessage;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -362,6 +364,8 @@ public class NativeViewHierarchyManager {
       @Nullable int[] tagsToDelete) {
     UiThreadUtil.assertOnUiThread();
 
+    final Set<Integer> pendingDeletionTags = new HashSet<>();
+
     final ViewGroup viewToManage = (ViewGroup) mTagsToViews.get(tag);
     final ViewGroupManager viewManager = (ViewGroupManager) resolveViewManager(tag);
     if (viewToManage == null) {
@@ -451,6 +455,7 @@ public class NativeViewHierarchyManager {
 
         if (mLayoutAnimationEnabled &&
           mLayoutAnimator.shouldAnimateLayout(viewToDestroy)) {
+          pendingDeletionTags.add(tagToDelete);
           mLayoutAnimator.deleteView(
             viewToDestroy,
             new LayoutAnimationListener() {
@@ -458,6 +463,7 @@ public class NativeViewHierarchyManager {
               public void onAnimationEnd() {
                 viewManager.removeView(viewToManage, viewToDestroy);
                 dropView(viewToDestroy);
+                pendingDeletionTags.remove(viewToDestroy.getId());
               }
             });
         } else {
@@ -481,7 +487,24 @@ public class NativeViewHierarchyManager {
                       viewsToAdd,
                       tagsToDelete));
         }
-        viewManager.addView(viewToManage, viewToAdd, viewAtIndex.mIndex);
+        // viewManager.addView(viewToManage, viewToAdd, viewAtIndex.mIndex);
+        int normalizedIndex = viewAtIndex.mIndex;
+        if (!pendingDeletionTags.isEmpty()) {
+          normalizedIndex = 0;
+          int counter = 0;
+          while (normalizedIndex < viewToManage.getChildCount()) {
+            if (counter == viewAtIndex.mIndex) {
+              break;
+            }
+            View v = viewToManage.getChildAt(normalizedIndex);
+            if (!pendingDeletionTags.contains(v.getId())) {
+              counter++;
+            }
+            normalizedIndex++;
+          }
+        }
+
+        viewManager.addView(viewToManage, viewToAdd, normalizedIndex);
       }
     }
   }
