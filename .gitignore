@@ -1,4 +1,5 @@
 android.tar.gz
+android
 # Xcode
 !**/*.xcodeproj
 !**/*.pbxproj
