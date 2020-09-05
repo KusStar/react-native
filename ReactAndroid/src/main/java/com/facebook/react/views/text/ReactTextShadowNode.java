@@ -97,13 +97,18 @@ public class ReactTextShadowNode extends ReactBaseTextShadowNode {
                 0.f,
                 mIncludeFontPadding);
             } else {
-              layout = StaticLayout.Builder.obtain(text, 0, text.length(), textPaint, hintWidth)
-                .setAlignment(alignment)
-                .setLineSpacing(0.f, 1.f)
-                .setIncludePad(mIncludeFontPadding)
-                .setBreakStrategy(mTextBreakStrategy)
-                .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NORMAL)
-                .build();
+              StaticLayout.Builder builder =
+                  StaticLayout.Builder.obtain(text, 0, text.length(), textPaint, hintWidth)
+                    .setAlignment(alignment)
+                    .setLineSpacing(0.f, 1.f)
+                    .setIncludePad(mIncludeFontPadding)
+                    .setBreakStrategy(mTextBreakStrategy)
+                    .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NORMAL);
+
+              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                  builder.setUseLineSpacingFromFallbacks(true);
+              }
+              layout = builder.build();
             }
 
           } else if (boring != null && (unconstrainedWidth || boring.width <= width)) {
@@ -131,13 +136,18 @@ public class ReactTextShadowNode extends ReactBaseTextShadowNode {
                   0.f,
                   mIncludeFontPadding);
             } else {
-              layout = StaticLayout.Builder.obtain(text, 0, text.length(), textPaint, (int) width)
-                .setAlignment(alignment)
-                .setLineSpacing(0.f, 1.f)
-                .setIncludePad(mIncludeFontPadding)
-                .setBreakStrategy(mTextBreakStrategy)
-                .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NORMAL)
-                .build();
+              StaticLayout.Builder builder =
+                  StaticLayout.Builder.obtain(text, 0, text.length(), textPaint, (int) width)
+                      .setAlignment(alignment)
+                      .setLineSpacing(0.f, 1.f)
+                      .setIncludePad(mIncludeFontPadding)
+                      .setBreakStrategy(mTextBreakStrategy)
+                      .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NORMAL);
+
+              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                  builder.setUseLineSpacingFromFallbacks(true);
+              }
+              layout = builder.build();
             }
           }
 
