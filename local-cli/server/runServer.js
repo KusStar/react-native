@@ -42,6 +42,7 @@ const serveStatic = require('serve-static');
 const statusPageMiddleware = require('./middleware/statusPageMiddleware.js');
 const systraceProfileMiddleware = require('./middleware/systraceProfileMiddleware.js');
 const webSocketProxy = require('./util/webSocketProxy.js');
+const enableWatchMode = require('./watchMode').default;
 
 const {ASSET_REGISTRY_PATH} = require('../core/Constants');
 
@@ -133,8 +134,15 @@ function runServer(
 
     wsProxy = webSocketProxy.attachToServer(serverInstance, '/debugger-proxy');
     ms = messageSocket.attachToServer(serverInstance, '/message');
+
+    // Edited by KusStar
+    // According to this PR:
+    // https://github.com/react-native-community/cli/pull/613/
+    enableWatchMode(ms)
+
     readyCallback(reporter);
   });
+
   // Disable any kind of automatic timeout behavior for incoming
   // requests in case it takes the packager more than the default
   // timeout of 120 seconds to respond to a request.
