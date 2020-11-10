@@ -153,14 +153,13 @@ task downloadJSC(dependsOn: createNativeDepsDirectories, type: Download) {
 
 // Create Android.mk library module based on jsc from npm
 task prepareJSC(dependsOn: downloadJSC) {
-    
-    def jscTar = tarTree(downloadJSC.dest)
-    def jscAAR = jscTar.matching({ it.include "**/android-jsc/**/*.aar" }).singleFile
-    def soFiles = zipTree(jscAAR).matching({ it.include "**/*.so" })
-
-    def headerFiles = jscTar.matching({ it.include "**/include/*.h" })
-
     doLast {
+        def jscTar = tarTree(downloadJSC.dest)
+        def jscAAR = jscTar.matching({ it.include "**/android-jsc/**/*.aar" }).singleFile
+        def soFiles = zipTree(jscAAR).matching({ it.include "**/*.so" })
+
+        def headerFiles = jscTar.matching({ it.include "**/include/*.h" })
+        
         copy {
             from soFiles
             from headerFiles
