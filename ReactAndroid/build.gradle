@@ -329,24 +329,11 @@ dependencies {
     api 'com.android.support:appcompat-v7:28.0.0'
     api "com.facebook.fresco:fresco:${FRESCO_VERSION}"
     api "com.facebook.fresco:imagepipeline-okhttp3:${FRESCO_VERSION}"
-    api 'com.facebook.soloader:soloader:0.5.1'
+    api "com.facebook.soloader:soloader:${SO_LOADER_VERSION}"
     api 'com.google.code.findbugs:jsr305:3.0.2'
     api "com.squareup.okhttp3:okhttp:${OKHTTP_VERSION}"
     api "com.squareup.okhttp3:okhttp-urlconnection:${OKHTTP_VERSION}"
     api 'com.squareup.okio:okio:1.14.0'
-
-    testImplementation "junit:junit:${JUNIT_VERSION}"
-    testImplementation "org.powermock:powermock-api-mockito:${POWERMOCK_VERSION}"
-    testImplementation "org.powermock:powermock-module-junit4-rule:${POWERMOCK_VERSION}"
-    testImplementation "org.powermock:powermock-classloading-xstream:${POWERMOCK_VERSION}"
-    testImplementation "org.mockito:mockito-core:${MOCKITO_CORE_VERSION}"
-    testImplementation "org.easytesting:fest-assert-core:${FEST_ASSERT_CORE_VERSION}"
-    testImplementation "org.robolectric:robolectric:${ROBOLECTRIC_VERSION}"
-
-    androidTestImplementation fileTree(dir: 'src/main/third-party/java/buck-android-support/', include: ['*.jar'])
-    androidTestImplementation "com.android.support.test:runner:${ANDROID_SUPPORT_TEST_VERSION}"
-    androidTestImplementation "com.android.support.test:rules:${ANDROID_SUPPORT_TEST_VERSION}"
-    androidTestImplementation "org.mockito:mockito-core:${MOCKITO_CORE_VERSION}"
 }
 
 apply from: 'release.gradle'
