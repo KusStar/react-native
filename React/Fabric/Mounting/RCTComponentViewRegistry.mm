@@ -9,6 +9,7 @@
 
 #import <Foundation/NSMapTable.h>
 #import <React/RCTAssert.h>
+#import <React/RCTConstants.h>
 
 #import "RCTImageComponentView.h"
 #import "RCTParagraphComponentView.h"
@@ -46,6 +47,10 @@ const NSInteger RCTComponentViewRegistryRecyclePoolMaxSize = 1024;
 
 - (void)preallocateViewComponents
 {
+  if (RCTExperimentGetPreemptiveViewAllocationDisabled()) {
+    return;
+  }
+
   // This data is based on empirical evidence which should represent the reality pretty well.
   // Regular `<View>` has magnitude equals to `1` by definition.
   std::vector<std::pair<ComponentHandle, float>> componentMagnitudes = {
@@ -66,7 +71,8 @@ const NSInteger RCTComponentViewRegistryRecyclePoolMaxSize = 1024;
   }
 }
 
-- (RCTComponentViewDescriptor)dequeueComponentViewWithComponentHandle:(ComponentHandle)componentHandle tag:(Tag)tag
+- (RCTComponentViewDescriptor const &)dequeueComponentViewWithComponentHandle:(ComponentHandle)componentHandle
+                                                                          tag:(Tag)tag
 {
   RCTAssertMainQueue();
 
@@ -76,10 +82,8 @@ const NSInteger RCTComponentViewRegistryRecyclePoolMaxSize = 1024;
 
   auto componentViewDescriptor = [self _dequeueComponentViewWithComponentHandle:componentHandle];
   componentViewDescriptor.view.tag = tag;
-
-  _registry.insert({tag, componentViewDescriptor});
-
-  return componentViewDescriptor;
+  auto it = _registry.insert({tag, componentViewDescriptor});
+  return it.first->second;
 }
 
 - (void)enqueueComponentViewWithComponentHandle:(ComponentHandle)componentHandle
@@ -146,6 +150,8 @@ const NSInteger RCTComponentViewRegistryRecyclePoolMaxSize = 1024;
     return;
   }
 
+  RCTAssert(
+      componentViewDescriptor.view.superview == nil, @"RCTComponentViewRegistry: Attempt to recycle a mounted view.");
   [componentViewDescriptor.view prepareForRecycle];
 
   recycledViews.push_back(componentViewDescriptor);
