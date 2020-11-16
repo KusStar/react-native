@@ -17,8 +17,6 @@ import com.facebook.react.modules.accessibilityinfo.AccessibilityInfoModule;
 import com.facebook.react.modules.appstate.AppStateModule;
 import com.facebook.react.modules.blob.BlobModule;
 import com.facebook.react.modules.blob.FileReaderModule;
-import com.facebook.react.modules.camera.ImageEditingManager;
-import com.facebook.react.modules.camera.ImageStoreManager;
 import com.facebook.react.modules.clipboard.ClipboardModule;
 import com.facebook.react.modules.datepicker.DatePickerDialogModule;
 import com.facebook.react.modules.dialog.DialogModule;
@@ -168,27 +166,11 @@ public class MainReactPackage extends LazyReactPackage {
               }
             }),
         ModuleSpec.nativeModuleSpec(
-            ImageEditingManager.class,
-            new Provider<NativeModule>() {
-              @Override
-              public NativeModule get() {
-                return new ImageEditingManager(context);
-              }
-            }),
-        ModuleSpec.nativeModuleSpec(
             ImageLoaderModule.class,
             new Provider<NativeModule>() {
               @Override
               public NativeModule get() {
                 return new ImageLoaderModule(context);
-              }
-            }),
-        ModuleSpec.nativeModuleSpec(
-            ImageStoreManager.class,
-            new Provider<NativeModule>() {
-              @Override
-              public NativeModule get() {
-                return new ImageStoreManager(context);
               }
             }),
         ModuleSpec.nativeModuleSpec(
