@@ -24,16 +24,16 @@ EventQueue::EventQueue(
       std::bind(&EventQueue::onBeat, this, std::placeholders::_1));
 }
 
-void EventQueue::enqueueEvent(const RawEvent &rawEvent) const {
+void EventQueue::enqueueEvent(RawEvent &&rawEvent) const {
   {
     std::lock_guard<std::mutex> lock(queueMutex_);
-    eventQueue_.push_back(rawEvent);
+    eventQueue_.push_back(std::move(rawEvent));
   }
 
   onEnqueue();
 }
 
-void EventQueue::enqueueStateUpdate(const StateUpdate &stateUpdate) const {
+void EventQueue::enqueueStateUpdate(StateUpdate &&stateUpdate) const {
   {
     std::lock_guard<std::mutex> lock(queueMutex_);
     if (!stateUpdateQueue_.empty()) {
@@ -42,14 +42,10 @@ void EventQueue::enqueueStateUpdate(const StateUpdate &stateUpdate) const {
         stateUpdateQueue_.pop_back();
       }
     }
-    stateUpdateQueue_.push_back(stateUpdate);
+    stateUpdateQueue_.push_back(std::move(stateUpdate));
   }
 
   onEnqueue();
-}
-
-void EventQueue::onEnqueue() const {
-  // Default implementation does nothing.
 }
 
 void EventQueue::onBeat(jsi::Runtime &runtime) const {

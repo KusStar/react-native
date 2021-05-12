@@ -17,7 +17,7 @@
     <img src="https://circleci.com/gh/facebook/react-native.svg?style=shield" alt="Current CircleCI build status." />
   </a>
   <a href="https://www.npmjs.org/package/react-native">
-    <img src="https://badge.fury.io/js/react-native.svg" alt="Current npm package version." />
+    <img src="https://img.shields.io/npm/v/react-native?color=brightgreen&label=npm%20package" alt="Current npm package version." />
   </a>
   <a href="https://reactnative.dev/docs/contributing">
     <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs welcome!" />
@@ -67,7 +67,7 @@ React Native is developed and supported by many companies and individual core co
 
 ## 📋 Requirements
 
-React Native apps may target iOS 10.0 and Android 4.1 (API 16) or newer. You may use Windows, macOS, or Linux as your development operating system, though building and running iOS apps is limited to macOS. Tools like [Expo](https://expo.io) can be used to work around this.
+React Native apps may target iOS 11.0 and Android 5.0 (API 21) or newer. You may use Windows, macOS, or Linux as your development operating system, though building and running iOS apps is limited to macOS. Tools like [Expo](https://expo.io) can be used to work around this.
 
 ## 🎉 Building your first React Native app
 

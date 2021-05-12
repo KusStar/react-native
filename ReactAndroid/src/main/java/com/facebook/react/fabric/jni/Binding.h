@@ -20,6 +20,7 @@
 #include "ComponentFactory.h"
 #include "EventBeatManager.h"
 #include "JBackgroundExecutor.h"
+#include "SurfaceHandlerBinding.h"
 
 namespace facebook {
 namespace react {
@@ -75,6 +76,9 @@ class Binding : public jni::HybridClass<Binding>,
   constexpr static auto UIManagerJavaDescriptor =
       "com/facebook/react/fabric/FabricUIManager";
 
+  constexpr static auto ReactFeatureFlagsJavaDescriptor =
+      "com/facebook/react/config/ReactFeatureFlags";
+
   static void registerNatives();
 
  private:
@@ -124,6 +128,10 @@ class Binding : public jni::HybridClass<Binding>,
 
   void stopSurface(jint surfaceId);
 
+  void registerSurface(SurfaceHandlerBinding *surfaceHandler);
+
+  void unregisterSurface(SurfaceHandlerBinding *surfaceHandler);
+
   void schedulerDidFinishTransaction(
       MountingCoordinator::Shared const &mountingCoordinator) override;
 
@@ -136,13 +144,14 @@ class Binding : public jni::HybridClass<Binding>,
       std::string const &commandName,
       folly::dynamic const args) override;
 
-  void schedulerDidSetJSResponder(
-      SurfaceId surfaceId,
+  void schedulerDidSendAccessibilityEvent(
       const ShadowView &shadowView,
-      const ShadowView &initialShadowView,
-      bool blockNativeResponder) override;
+      std::string const &eventType) override;
 
-  void schedulerDidClearJSResponder() override;
+  void schedulerDidSetIsJSResponder(
+      ShadowView const &shadowView,
+      bool isJSResponder,
+      bool blockNativeResponder) override;
 
   void setPixelDensity(float pointScaleFactor);
 
@@ -164,20 +173,18 @@ class Binding : public jni::HybridClass<Binding>,
   std::shared_ptr<Scheduler> scheduler_;
   std::mutex schedulerMutex_;
 
+  better::map<SurfaceId, SurfaceHandler> surfaceHandlerRegistry_{};
+  better::shared_mutex
+      surfaceHandlerRegistryMutex_; // Protects `surfaceHandlerRegistry_`.
+
   std::recursive_mutex commitMutex_;
 
   float pointScaleFactor_ = 1;
 
   std::shared_ptr<const ReactNativeConfig> reactNativeConfig_{nullptr};
-  bool useIntBufferBatchMountItem_{false};
-  bool collapseDeleteCreateMountingInstructions_{false};
   bool disablePreallocateViews_{false};
   bool disableVirtualNodePreallocation_{false};
   bool enableFabricLogs_{false};
-
- private:
-  void schedulerDidFinishTransactionIntBuffer(
-      MountingCoordinator::Shared const &mountingCoordinator);
 };
 
 } // namespace react
