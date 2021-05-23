@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -222,6 +223,12 @@ public class ReactModalHostView extends ViewGroup implements LifecycleEventListe
 
     mDialog.setContentView(getContentView());
     updateProperties();
+
+    if (Build.VERSION.SDK_INT < 21) {
+      mDialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+    } else {
+      mDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+    }
 
     mDialog.setOnShowListener(mOnShowListener);
     mDialog.setOnKeyListener(
