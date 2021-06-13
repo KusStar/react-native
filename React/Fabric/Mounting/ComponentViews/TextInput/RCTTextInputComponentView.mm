@@ -258,6 +258,7 @@ using namespace facebook::react;
   _lastStringStateWasUpdatedWith = nil;
   _ignoreNextTextInputCall = NO;
   _didMoveToWindow = NO;
+  [_backedTextInputView resignFirstResponder];
 }
 
 #pragma mark - RCTBackedTextInputDelegate
@@ -334,6 +335,15 @@ using namespace facebook::react;
   auto const &props = *std::static_pointer_cast<TextInputProps const>(_props);
   if (props.maxLength) {
     NSInteger allowedLength = props.maxLength - _backedTextInputView.attributedText.string.length + range.length;
+
+    if (allowedLength > 0 && text.length > allowedLength) {
+      // make sure unicode characters that are longer than 16 bits (such as emojis) are not cut off
+      NSRange cutOffCharacterRange = [text rangeOfComposedCharacterSequenceAtIndex:allowedLength - 1];
+      if (cutOffCharacterRange.location + cutOffCharacterRange.length > allowedLength) {
+        // the character at the length limit takes more than 16bits, truncation should end at the character before
+        allowedLength = cutOffCharacterRange.location;
+      }
+    }
 
     if (allowedLength <= 0) {
       return nil;
