@@ -6,17 +6,13 @@
  *
  * @format
  * @flow strict-local
- * @generated SignedSource<<435ec24b3531c66986fe5d529795713b>>
- *
- * This file was sync'd from the facebook/react repository.
  */
 
 'use strict';
 
-import {ReactNativeViewConfigRegistry} from 'react-native/Libraries/ReactPrivate/ReactNativePrivateInterface';
-import {type ViewConfig} from './ReactNativeTypes';
+import type {ViewConfigGetter} from './ReactNativeTypes';
 
-const {register} = ReactNativeViewConfigRegistry;
+const {register} = require('ReactNativeViewConfigRegistry');
 
 /**
  * Creates a renderable ReactNative host component.
@@ -28,7 +24,7 @@ const {register} = ReactNativeViewConfigRegistry;
  */
 const createReactNativeComponentClass = function(
   name: string,
-  callback: () => ViewConfig,
+  callback: ViewConfigGetter,
 ): string {
   return register(name, callback);
 };
