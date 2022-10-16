@@ -6,23 +6,29 @@
  *
  * @format
  * @flow
+ * @generated SignedSource<<40f01afd3b6d95a617ac8e48748a2a76>>
+ *
+ * This file was sync'd from the facebook/react repository.
  */
 
 'use strict';
 
-const BatchedBridge = require('BatchedBridge');
+import {BatchedBridge} from 'react-native/Libraries/ReactPrivate/ReactNativePrivateInterface';
 
-// TODO @sema: Adjust types
-import type {ReactNativeType} from 'ReactNativeTypes';
+import type {ReactFabricType} from './ReactNativeTypes';
 
 let ReactFabric;
 
 if (__DEV__) {
-  ReactFabric = require('ReactFabric-dev');
+  ReactFabric = require('../implementations/ReactFabric-dev');
 } else {
-  ReactFabric = require('ReactFabric-prod');
+  ReactFabric = require('../implementations/ReactFabric-prod');
 }
 
-BatchedBridge.registerCallableModule('ReactFabric', ReactFabric);
+if (global.RN$Bridgeless) {
+  global.RN$stopSurface = ReactFabric.stopSurface;
+} else {
+  BatchedBridge.registerCallableModule('ReactFabric', ReactFabric);
+}
 
-module.exports = (ReactFabric: ReactNativeType);
+module.exports = (ReactFabric: ReactFabricType);

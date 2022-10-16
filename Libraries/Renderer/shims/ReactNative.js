@@ -6,18 +6,21 @@
  *
  * @format
  * @flow
+ * @generated SignedSource<<fd14f2375864691ea971c77ac6088e4b>>
+ *
+ * This file was sync'd from the facebook/react repository.
  */
 
 'use strict';
 
-import type {ReactNativeType} from 'ReactNativeTypes';
+import type {ReactNativeType} from './ReactNativeTypes';
 
 let ReactNative;
 
 if (__DEV__) {
-  ReactNative = require('ReactNativeRenderer-dev');
+  ReactNative = require('../implementations/ReactNativeRenderer-dev');
 } else {
-  ReactNative = require('ReactNativeRenderer-prod');
+  ReactNative = require('../implementations/ReactNativeRenderer-prod');
 }
 
 module.exports = (ReactNative: ReactNativeType);
