@@ -1,6 +1,6 @@
 {
-  "name": "react-native",
-  "version": "0.56.1",
+  "name": "@kuss/react-native",
+  "version": "0.56.1-beta.1",
   "description": "A framework for building native apps using React",
   "license": "MIT",
   "repository": {
