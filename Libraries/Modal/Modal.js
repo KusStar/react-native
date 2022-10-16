@@ -11,14 +11,13 @@
 'use strict';
 
 const AppContainer = require('AppContainer');
-const I18nManager = require('I18nManager');
 const NativeEventEmitter = require('NativeEventEmitter');
 const NativeModules = require('NativeModules');
 const Platform = require('Platform');
 const React = require('React');
 const PropTypes = require('prop-types');
 const StyleSheet = require('StyleSheet');
-const View = require('View');
+const Dimensions = require('Dimensions');
 
 const deprecatedPropType = require('deprecatedPropType');
 const requireNativeComponent = require('requireNativeComponent');
@@ -29,6 +28,8 @@ const ModalEventEmitter =
   Platform.OS === 'ios' && NativeModules.ModalManager
     ? new NativeEventEmitter(NativeModules.ModalManager)
     : null;
+
+const { height, width } = Dimensions.get('screen')
 
 import type EmitterSubscription from 'EmitterSubscription';
 
@@ -131,6 +132,8 @@ class Modal extends React.Component<Object> {
      * See https://facebook.github.io/react-native/docs/modal.html#onorientationchange
      */
     onOrientationChange: PropTypes.func,
+
+    modalStyle: PropTypes.object
   };
 
   static defaultProps = {
@@ -205,10 +208,6 @@ class Modal extends React.Component<Object> {
       return null;
     }
 
-    const containerStyles = {
-      backgroundColor: this.props.transparent ? 'transparent' : 'white',
-    };
-
     let animationType = this.props.animationType;
     if (!animationType) {
       // manually setting default prop here to keep support for the deprecated 'animated' prop
@@ -243,11 +242,11 @@ class Modal extends React.Component<Object> {
         onRequestClose={this.props.onRequestClose}
         onShow={this.props.onShow}
         identifier={this._identifier}
-        style={styles.modal}
+        style={[styles.modal, this.props.modalStyle]}
         onStartShouldSetResponder={this._shouldSetResponder}
         supportedOrientations={this.props.supportedOrientations}
         onOrientationChange={this.props.onOrientationChange}>
-        <View style={[styles.container, containerStyles]}>{innerChildren}</View>
+        {innerChildren}
       </RCTModalHostView>
     );
   }
@@ -258,15 +257,11 @@ class Modal extends React.Component<Object> {
   }
 }
 
-const side = I18nManager.isRTL ? 'right' : 'left';
 const styles = StyleSheet.create({
   modal: {
+    height,
+    width,
     position: 'absolute',
-  },
-  container: {
-    position: 'absolute',
-    [side]: 0,
-    top: 0,
   },
 });
 

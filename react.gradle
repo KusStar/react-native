@@ -154,6 +154,9 @@ afterEvaluate {
             enabled currentBundleTask.enabled
         }
 
+        def mergeResourcesTask = tasks.findByName("merge${targetName}Resources")
+        mergeResourcesTask.dependsOn(currentAssetsCopyTask)
+
         packageTask.dependsOn(currentAssetsCopyTask)
         if (buildPreBundleTask != null) {
             buildPreBundleTask.dependsOn(currentAssetsCopyTask)

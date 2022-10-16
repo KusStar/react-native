@@ -42,6 +42,7 @@ const serveStatic = require('serve-static');
 const statusPageMiddleware = require('./middleware/statusPageMiddleware.js');
 const systraceProfileMiddleware = require('./middleware/systraceProfileMiddleware.js');
 const webSocketProxy = require('./util/webSocketProxy.js');
+const logToConsoleMiddleware = require('./logToConsoleMiddleware').default;
 const enableWatchMode = require('./watchMode').default;
 
 const {ASSET_REGISTRY_PATH} = require('../core/Constants');
@@ -95,6 +96,7 @@ function runServer(
     )
     .use(getDevToolsMiddleware(args, () => ms && ms.isChromeConnected()))
     .use(openStackFrameInEditorMiddleware(args))
+    .use(logToConsoleMiddleware)
     .use(copyToClipBoardMiddleware)
     .use(statusPageMiddleware)
     .use(systraceProfileMiddleware)
