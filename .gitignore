@@ -1,5 +1,3 @@
-android.tar.gz
-android
 # Xcode
 !**/*.xcodeproj
 !**/*.pbxproj
@@ -44,7 +42,6 @@ buck-out
 # Android
 .idea
 .gradle
-local.properties
 *.iml
 
 # Node
