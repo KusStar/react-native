@@ -43,6 +43,7 @@ buck-out
 .idea
 .gradle
 *.iml
+android
 
 # Node
 node_modules
