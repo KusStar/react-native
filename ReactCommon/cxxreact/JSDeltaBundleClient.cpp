@@ -38,7 +38,7 @@ void JSDeltaBundleClient::patch(const folly::dynamic& delta) {
 
   const folly::dynamic *modules = delta.get_ptr("delta");
   if (modules != nullptr) {
-    for (const folly::dynamic pair : *modules) {
+    for (const folly::dynamic& pair : *modules) {
       auto id = pair[0].getInt();
       auto module = pair[1];
       if (module.isNull()) {

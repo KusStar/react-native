@@ -2224,7 +2224,7 @@ static float YGDistributeFreeSpaceSecondPass(
         "flex",
         config);
     node->setLayoutHadOverflow(
-        node->getLayout().hadOverflow |
+        node->getLayout().hadOverflow ||
         currentRelativeChild->getLayout().hadOverflow);
   }
   return deltaFreeSpace;
