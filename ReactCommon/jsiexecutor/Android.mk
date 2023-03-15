@@ -4,7 +4,11 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := jsireact
 
-LOCAL_SRC_FILES := $(wildcard $(LOCAL_PATH)/jsireact/*.cpp)
+LOCAL_SRC_FILES := $(wildcard \
+$(LOCAL_PATH)/jsireact/*.cpp \
+$(LOCAL_PATH)/jsireact/quicksqlite/*.cpp \
+$(LOCAL_PATH)/jsireact/quicksqlite/*.c \
+)
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_C_INCLUDES)
