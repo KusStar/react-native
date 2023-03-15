@@ -86,11 +86,32 @@ JSIExecutor::JSIExecutor(
 }
 
 void JSIExecutor::loadApplicationScript(
+    std::shared_ptr<CallInvoker> jsCallInvoker,
     std::unique_ptr<const JSBigString> script,
     std::string sourceURL) {
   SystraceSection s("JSIExecutor::loadApplicationScript");
 
   // TODO: check for and use precompiled HBC
+
+  // NOTE: inject sqlite_init fns
+  runtime_->global().setProperty(
+      *runtime_,
+      "quick_sqlite_init",
+      Function::createFromHostFunction(
+          *runtime_,
+          PropNameID::forAscii(*runtime_, "quick_sqlite_init"),
+          1,
+          [&](
+              jsi::Runtime& rt,
+              const jsi::Value&,
+              const jsi::Value* args,
+              size_t count) {
+            if (args[0].isString()) {
+              ops::install(rt, jsCallInvoker, args[0].getString(rt).utf8(rt).c_str());
+              return jsi::Value(true);
+            }
+            return jsi::Value(false);
+          }));
 
   runtime_->global().setProperty(
       *runtime_,

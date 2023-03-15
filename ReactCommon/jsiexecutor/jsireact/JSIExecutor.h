@@ -3,7 +3,10 @@
 #pragma once
 
 #include "JSINativeModules.h"
+// NOTE: from react-native-quick-sqlite
+#include "quicksqlite/bindings.h"
 
+#include <cxxreact/CallInvoker.h>
 #include <cxxreact/JSBigString.h>
 #include <cxxreact/JSExecutor.h>
 #include <cxxreact/RAMBundleRegistry.h>
@@ -77,6 +80,7 @@ class JSIExecutor : public JSExecutor {
       const JSIScopedTimeoutInvoker& timeoutInvoker,
       RuntimeInstaller runtimeInstaller);
   void loadApplicationScript(
+      std::shared_ptr<CallInvoker> jsCallInvoker,
       std::unique_ptr<const JSBigString> script,
       std::string sourceURL) override;
   void setBundleRegistry(std::unique_ptr<RAMBundleRegistry>) override;
@@ -107,7 +111,7 @@ class JSIExecutor : public JSExecutor {
  private:
   class NativeModuleProxy;
 
-  void flush();
+  void flush() override;
   void bindBridge();
   void callNativeModules(const jsi::Value& queue, bool isEndOfBatch);
   jsi::Value nativeCallSyncHook(const jsi::Value* args, size_t count);

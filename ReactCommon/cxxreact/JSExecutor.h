@@ -9,6 +9,7 @@
 #include <string>
 
 #include <cxxreact/NativeModule.h>
+#include <cxxreact/CallInvoker.h>
 #include <folly/dynamic.h>
 
 #ifndef RN_EXPORT
@@ -54,7 +55,9 @@ public:
   /**
    * Execute an application script bundle in the JS context.
    */
-  virtual void loadApplicationScript(std::unique_ptr<const JSBigString> script,
+  virtual void loadApplicationScript(
+    std::shared_ptr<CallInvoker> jsCallInvoker,
+    std::unique_ptr<const JSBigString> script,
                                      std::string sourceURL) = 0;
 
   /**
@@ -111,6 +114,8 @@ public:
   static std::string getSyntheticBundlePath(
       uint32_t bundleId,
       const std::string& bundlePath);
+
+  virtual void flush() {}
 };
 
 } }

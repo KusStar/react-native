@@ -100,7 +100,7 @@ void NativeToJsBridge::loadApplication(
     std::string startupScriptSourceURL) {
 
   runOnExecutorQueue(
-      [bundleRegistryWrap=folly::makeMoveWrapper(std::move(bundleRegistry)),
+      [this, bundleRegistryWrap=folly::makeMoveWrapper(std::move(bundleRegistry)),
        startupScript=folly::makeMoveWrapper(std::move(startupScript)),
        startupScriptSourceURL=std::move(startupScriptSourceURL)]
         (JSExecutor* executor) mutable {
@@ -108,7 +108,7 @@ void NativeToJsBridge::loadApplication(
     if (bundleRegistry) {
       executor->setBundleRegistry(std::move(bundleRegistry));
     }
-    executor->loadApplicationScript(std::move(*startupScript),
+    executor->loadApplicationScript(m_jsCallInvoker, std::move(*startupScript),
                                     std::move(startupScriptSourceURL));
   });
 }
@@ -120,7 +120,7 @@ void NativeToJsBridge::loadApplicationSync(
   if (bundleRegistry) {
     m_executor->setBundleRegistry(std::move(bundleRegistry));
   }
-  m_executor->loadApplicationScript(std::move(startupScript),
+  m_executor->loadApplicationScript(this->m_jsCallInvoker, std::move(startupScript),
                                         std::move(startupScriptSourceURL));
 }
 
@@ -236,4 +236,10 @@ void NativeToJsBridge::runOnExecutorQueue(std::function<void(JSExecutor*)> task)
   });
 }
 
+void NativeToJsBridge::setJsCallInvoker(std::shared_ptr<CallInvoker> jsCallInvoker) {
+  m_jsCallInvoker = jsCallInvoker;
+}
+
 } }
+
+

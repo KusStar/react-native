@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include "CallInvoker.h"
+
 #include <atomic>
 #include <functional>
 #include <map>
@@ -78,12 +80,14 @@ public:
 
   void handleMemoryPressure(int pressureLevel);
 
+  void runOnExecutorQueue(std::function<void(JSExecutor*)> task);
+
+  void setJsCallInvoker(std::shared_ptr<CallInvoker> jsCallInvoker);
   /**
    * Synchronously tears down the bridge and the main executor.
    */
   void destroy();
 private:
-  void runOnExecutorQueue(std::function<void(JSExecutor*)> task);
 
   // This is used to avoid a race condition where a proxyCallback gets queued
   // after ~NativeToJsBridge(), on the same thread. In that case, the callback
@@ -93,6 +97,7 @@ private:
   std::shared_ptr<JsToNativeBridge> m_delegate;
   std::unique_ptr<JSExecutor> m_executor;
   std::shared_ptr<MessageQueueThread> m_executorMessageQueueThread;
+  std::shared_ptr<CallInvoker> m_jsCallInvoker;
 
   #ifdef WITH_FBSYSTRACE
   std::atomic_uint_least32_t m_systraceCookie = ATOMIC_VAR_INIT();

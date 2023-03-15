@@ -50,6 +50,7 @@ ProxyExecutor::~ProxyExecutor() {
 }
 
 void ProxyExecutor::loadApplicationScript(
+    std::shared_ptr<CallInvoker> jsCallInvoker,
     std::unique_ptr<const JSBigString>,
     std::string sourceURL) {
 

@@ -5,8 +5,12 @@
 
 #pragma once
 
+#include "CallInvoker.h"
+
 #include <condition_variable>
+#include <list>
 #include <memory>
+#include <mutex>
 
 #include <cxxreact/NativeToJsBridge.h>
 
@@ -41,7 +45,7 @@ public:
                         std::shared_ptr<JSExecutorFactory> jsef,
                         std::shared_ptr<MessageQueueThread> jsQueue,
                         std::shared_ptr<ModuleRegistry> moduleRegistry);
-
+          
   void setSourceURL(std::string sourceURL);
 
   void loadScriptFromString(std::unique_ptr<const JSBigString> string,
@@ -70,6 +74,8 @@ public:
 
   void handleMemoryPressure(int pressureLevel);
 
+  std::shared_ptr<CallInvoker> getJSCallInvoker();
+
 private:
   void callNativeModules(folly::dynamic &&calls, bool isEndOfBatch);
   void loadApplication(std::unique_ptr<RAMBundleRegistry> bundleRegistry,
@@ -80,12 +86,33 @@ private:
                            std::string startupScriptSourceURL);
 
   std::shared_ptr<InstanceCallback> callback_;
-  std::unique_ptr<NativeToJsBridge> nativeToJsBridge_;
+  std::shared_ptr<NativeToJsBridge> nativeToJsBridge_;
   std::shared_ptr<ModuleRegistry> moduleRegistry_;
 
   std::mutex m_syncMutex;
   std::condition_variable m_syncCV;
   bool m_syncReady = false;
+
+  // NOTE: from https://github.com/facebook/react-native/blob/de566494302630c8a7508268870323e2553968e1/ReactCommon/cxxreact/Instance.h#LL103C3-L103C51
+
+  class JSCallInvoker : public CallInvoker {
+   private:
+    std::weak_ptr<NativeToJsBridge> m_nativeToJsBridge;
+    std::mutex m_mutex;
+    bool m_shouldBuffer = true;
+    std::list<std::function<void()>> m_workBuffer;
+
+    void scheduleAsync(std::function<void()> &&work);
+
+   public:
+    void setNativeToJsBridgeAndFlushCalls(
+        std::weak_ptr<NativeToJsBridge> nativeToJsBridge);
+    void invokeAsync(std::function<void()> &&work) override;
+    void invokeSync(std::function<void()> &&work) override;
+  };
+
+  std::shared_ptr<JSCallInvoker> jsCallInvoker_ =
+      std::make_shared<JSCallInvoker>();
 };
 
 } // namespace react
