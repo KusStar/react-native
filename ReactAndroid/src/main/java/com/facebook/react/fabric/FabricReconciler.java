@@ -112,7 +112,7 @@ public class FabricReconciler {
                 "\n\tTags2Delete: " + Arrays.toString(tagsToDeleteArray));
       }
       uiViewOperationQueue.enqueueManageChildren(
-        parent.getReactTag(), indicesToRemoveArray, viewsToAddArray, tagsToDeleteArray);
+        parent.getReactTag(), indicesToRemoveArray, viewsToAddArray, tagsToDeleteArray, indicesToRemoveArray);
     }
   }
 
