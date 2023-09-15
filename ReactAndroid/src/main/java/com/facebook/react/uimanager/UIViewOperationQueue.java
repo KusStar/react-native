@@ -210,19 +210,16 @@ public class UIViewOperationQueue {
     private final @Nullable int[] mIndicesToRemove;
     private final @Nullable ViewAtIndex[] mViewsToAdd;
     private final @Nullable int[] mTagsToDelete;
-    private final @Nullable int[] mIndicesToDelete;
 
     public ManageChildrenOperation(
         int tag,
         @Nullable int[] indicesToRemove,
         @Nullable ViewAtIndex[] viewsToAdd,
-        @Nullable int[] tagsToDelete,
-        @Nullable int[] indicesToDelete) {
+        @Nullable int[] tagsToDelete) {
       super(tag);
       mIndicesToRemove = indicesToRemove;
       mViewsToAdd = viewsToAdd;
       mTagsToDelete = tagsToDelete;
-      mIndicesToDelete = indicesToDelete;
     }
 
     @Override
@@ -231,8 +228,7 @@ public class UIViewOperationQueue {
           mTag,
           mIndicesToRemove,
           mViewsToAdd,
-          mTagsToDelete,
-          mIndicesToDelete);
+          mTagsToDelete);
     }
   }
 
@@ -767,10 +763,9 @@ public class UIViewOperationQueue {
       int reactTag,
       @Nullable int[] indicesToRemove,
       @Nullable ViewAtIndex[] viewsToAdd,
-      @Nullable int[] tagsToDelete,
-      @Nullable int[] indicesToDelete) {
+      @Nullable int[] tagsToDelete) {
     mOperations.add(
-        new ManageChildrenOperation(reactTag, indicesToRemove, viewsToAdd, tagsToDelete, indicesToDelete));
+        new ManageChildrenOperation(reactTag, indicesToRemove, viewsToAdd, tagsToDelete));
   }
 
   public void enqueueSetChildren(
