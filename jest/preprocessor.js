@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,38 +12,10 @@
 
 'use strict';
 
-const babelRegisterOnly = require('metro-babel-register');
+const metroBabelRegister = require('metro-babel-register');
 const nullthrows = require('nullthrows');
-const createCacheKeyFunction = require('@jest/create-cache-key-function')
-  .default;
-const t = require('@babel/types');
-const {statements} = require('@babel/template').default;
-
-const importDefault = '__importDefault__';
-const importAll = '__importAll__';
-
-// prelude
-const importPrelude = statements(`
-  function ${importDefault}(moduleId) {
-    const exports = require(moduleId);
-
-    if (exports && exports.__esModule) {
-      return exports.default;
-    }
-
-    return exports;
-  };
-
-  function ${importAll}(moduleId) {
-    const exports = require(moduleId);
-
-    if (exports && exports.__esModule) {
-      return exports;
-    }
-
-    return Object.assign({}, exports, {default: exports});
-  };
-`);
+const createCacheKeyFunction =
+  require('@jest/create-cache-key-function').default;
 
 const {
   transformSync: babelTransformSync,
@@ -51,26 +23,29 @@ const {
 } = require('@babel/core');
 const generate = require('@babel/generator').default;
 
-const nodeFiles = new RegExp(
-  [
-    '/metro(?:-[^/]*)?/', // metro, metro-core, metro-source-map, metro-etc.
-  ].join('|'),
-);
-const nodeOptions = babelRegisterOnly.config([nodeFiles]);
+// Files matching this pattern will be transformed with the Node JS Babel
+// transformer, rather than with the React Native Babel transformer. Scripts
+// intended to run through Node JS should be included here.
+const nodeFiles = /[\\/]metro(?:-[^/]*)[\\/]/;
 
-babelRegisterOnly([]);
+// Get Babel config from metro-babel-register, without registering a require
+// hook. This is used below to configure babelTransformSync under Jest.
+const {only: _, ...nodeBabelOptions} = metroBabelRegister.config([]);
 
-const transformer = require('metro-react-native-babel-transformer');
+// Register Babel to allow the transformer itself to be loaded from source.
+require('../scripts/build/babel-register').registerForMonorepo();
+const transformer = require('@react-native/metro-babel-transformer');
+
 module.exports = {
-  process(src /*: string */, file /*: string */) /*: string */ {
+  process(src /*: string */, file /*: string */) /*: {code: string, ...} */ {
     if (nodeFiles.test(file)) {
       // node specific transforms only
       return babelTransformSync(src, {
         filename: file,
         sourceType: 'script',
-        ...nodeOptions,
+        ...nodeBabelOptions,
         ast: false,
-      }).code;
+      });
     }
 
     let {ast} = transformer.transform({
@@ -79,9 +54,11 @@ module.exports = {
         ast: true, // needed for open source (?) https://github.com/facebook/react-native/commit/f8d6b97140cffe8d18b2558f94570c8d1b410d5c#r28647044
         dev: true,
         enableBabelRuntime: false,
-        experimentalImportSupport: true,
+        experimentalImportSupport: false,
         globalPrefix: '',
+        hermesParser: true,
         hot: false,
+        // $FlowFixMe[incompatible-call] TODO: Remove when `inlineRequires` has been removed from metro-babel-transformer in OSS
         inlineRequires: true,
         minify: false,
         platform: '',
@@ -91,81 +68,18 @@ module.exports = {
         sourceType: 'unambiguous', // b7 required. detects module vs script mode
       },
       src,
-      plugins: [
-        [require('@babel/plugin-transform-block-scoping')],
-        // the flow strip types plugin must go BEFORE class properties!
-        // there'll be a test case that fails if you don't.
-        [require('@babel/plugin-transform-flow-strip-types')],
-        [
-          require('@babel/plugin-proposal-class-properties'),
-          // use `this.foo = bar` instead of `this.defineProperty('foo', ...)`
-          {loose: true},
-        ],
-        [require('@babel/plugin-transform-computed-properties')],
-        [require('@babel/plugin-transform-destructuring')],
-        [require('@babel/plugin-transform-function-name')],
-        [require('@babel/plugin-transform-literals')],
-        [require('@babel/plugin-transform-parameters')],
-        [require('@babel/plugin-transform-shorthand-properties')],
-        [require('@babel/plugin-transform-react-jsx')],
-        [require('@babel/plugin-transform-regenerator')],
-        [require('@babel/plugin-transform-sticky-regex')],
-        [require('@babel/plugin-transform-unicode-regex')],
-        [require('@babel/plugin-transform-classes')],
-        [require('@babel/plugin-transform-arrow-functions')],
-        [require('@babel/plugin-transform-spread')],
-        [require('@babel/plugin-proposal-object-rest-spread')],
-        [
-          require('@babel/plugin-transform-template-literals'),
-          {loose: true}, // dont 'a'.concat('b'), just use 'a'+'b'
-        ],
-        [require('@babel/plugin-transform-exponentiation-operator')],
-        [require('@babel/plugin-transform-object-assign')],
-        [require('@babel/plugin-transform-for-of'), {loose: true}],
-        [require('@babel/plugin-transform-react-display-name')],
-        [require('@babel/plugin-transform-react-jsx-source')],
-      ],
     });
 
-    // We're not using @babel/plugin-transform-modules-commonjs so
-    // we need to add 'use strict' manually
-    const directives = ast.program.directives;
-
-    if (
-      ast.program.sourceType === 'module' &&
-      (directives == null ||
-        directives.findIndex(d => d.value.value === 'use strict') === -1)
-    ) {
-      ast.program.directives = [
-        ...(directives || []),
-        t.directive(t.directiveLiteral('use strict')),
-      ];
-    }
-
-    // Postprocess the transformed module to handle ESM and inline requires.
-    // We need to do this in a separate pass to avoid issues tracking references.
     const babelTransformResult = babelTransformFromAstSync(ast, src, {
       ast: true,
       retainLines: true,
       plugins: [
-        [
-          require('metro-transform-plugins').importExportPlugin,
-          {importDefault, importAll},
-        ],
-        [
-          require('babel-preset-fbjs/plugins/inline-requires.js'),
-          {inlineableCalls: [importDefault, importAll]},
-        ],
+        // TODO(moti): Replace with require('metro-transform-plugins').inlineRequiresPlugin when available in OSS
+        require('babel-preset-fbjs/plugins/inline-requires'),
       ],
       sourceType: 'module',
     });
-
     ast = nullthrows(babelTransformResult.ast);
-
-    // Inject import helpers *after* running the inline-requires transform,
-    // because otherwise it will assume they are user code and bail out of
-    // inlining calls to them.
-    ast.program.body.unshift(...importPrelude());
 
     return generate(
       ast,
@@ -180,12 +94,13 @@ module.exports = {
         sourceMaps: true,
       },
       src,
-    ).code;
+    );
   },
 
-  getCacheKey: (createCacheKeyFunction([
+  // $FlowFixMe[signature-verification-failure]
+  getCacheKey: createCacheKeyFunction([
     __filename,
-    require.resolve('metro-react-native-babel-transformer'),
+    require.resolve('@react-native/metro-babel-transformer'),
     require.resolve('@babel/core/package.json'),
-  ]) /*: any */),
+  ]),
 };
