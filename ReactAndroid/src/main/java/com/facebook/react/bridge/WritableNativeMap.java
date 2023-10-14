@@ -35,18 +35,18 @@ public class WritableNativeMap extends ReadableNativeMap implements WritableMap 
 
   // Note: this consumes the map so do not reuse it.
   @Override
-  public void putMap(String key, WritableMap value) {
+  public void putMap(String key, ReadableMap value) {
     Assertions.assertCondition(
-        value == null || value instanceof WritableNativeMap, "Illegal type provided");
-    putNativeMap(key, (WritableNativeMap) value);
+        value == null || value instanceof ReadableNativeMap, "Illegal type provided");
+    putNativeMap(key, (ReadableNativeMap) value);
   }
 
   // Note: this consumes the map so do not reuse it.
   @Override
-  public void putArray(String key, WritableArray value) {
+  public void putArray(String key, ReadableArray value) {
     Assertions.assertCondition(
-        value == null || value instanceof WritableNativeArray, "Illegal type provided");
-    putNativeArray(key, (WritableNativeArray) value);
+        value == null || value instanceof ReadableNativeArray, "Illegal type provided");
+    putNativeArray(key, (ReadableNativeArray) value);
   }
 
   // Note: this **DOES NOT** consume the source map
@@ -62,7 +62,7 @@ public class WritableNativeMap extends ReadableNativeMap implements WritableMap 
 
   private static native HybridData initHybrid();
 
-  private native void putNativeMap(String key, WritableNativeMap value);
-  private native void putNativeArray(String key, WritableNativeArray value);
+  private native void putNativeMap(String key, ReadableNativeMap value);
+  private native void putNativeArray(String key, ReadableNativeArray value);
   private native void mergeNativeMap(ReadableNativeMap source);
 }

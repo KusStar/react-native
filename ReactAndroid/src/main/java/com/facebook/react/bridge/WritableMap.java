@@ -17,8 +17,8 @@ public interface WritableMap extends ReadableMap {
   void putDouble(String key, double value);
   void putInt(String key, int value);
   void putString(String key, String value);
-  void putArray(String key, WritableArray value);
-  void putMap(String key, WritableMap value);
+  void putArray(String key, ReadableArray value);
+  void putMap(String key, ReadableMap value);
 
   void merge(ReadableMap source);
 }

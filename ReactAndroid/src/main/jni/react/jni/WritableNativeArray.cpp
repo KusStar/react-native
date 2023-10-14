@@ -48,7 +48,7 @@ void WritableNativeArray::pushString(jstring value) {
   array_.push_back(wrap_alias(value)->toStdString());
 }
 
-void WritableNativeArray::pushNativeArray(WritableNativeArray* otherArray) {
+void WritableNativeArray::pushNativeArray(ReadableNativeArray* otherArray) {
   if (otherArray == NULL) {
     pushNull();
     return;
@@ -57,7 +57,7 @@ void WritableNativeArray::pushNativeArray(WritableNativeArray* otherArray) {
   array_.push_back(otherArray->consume());
 }
 
-void WritableNativeArray::pushNativeMap(WritableNativeMap* map) {
+void WritableNativeArray::pushNativeMap(ReadableNativeMap* map) {
   if (map == NULL) {
     pushNull();
     return;

@@ -17,6 +17,6 @@ public interface WritableArray extends ReadableArray {
   void pushDouble(double value);
   void pushInt(int value);
   void pushString(String value);
-  void pushArray(WritableArray array);
-  void pushMap(WritableMap map);
+  void pushArray(ReadableArray array);
+  void pushMap(ReadableMap map);
 }

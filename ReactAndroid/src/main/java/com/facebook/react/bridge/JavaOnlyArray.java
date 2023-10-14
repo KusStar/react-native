@@ -162,12 +162,12 @@ public class JavaOnlyArray implements ReadableArray, WritableArray {
   }
 
   @Override
-  public void pushArray(WritableArray array) {
+  public void pushArray(ReadableArray array) {
     mBackingList.add(array);
   }
 
   @Override
-  public void pushMap(WritableMap map) {
+  public void pushMap(ReadableMap map) {
     mBackingList.add(map);
   }
 

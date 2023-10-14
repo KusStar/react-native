@@ -10,6 +10,7 @@
 #include <folly/json.h>
 
 #include "ReadableNativeArray.h"
+#include "ReadableNativeMap.h"
 
 namespace facebook {
 namespace react {
@@ -28,8 +29,8 @@ struct WritableNativeArray
   void pushDouble(jdouble value);
   void pushInt(jint value);
   void pushString(jstring value);
-  void pushNativeArray(WritableNativeArray* otherArray);
-  void pushNativeMap(WritableNativeMap* map);
+  void pushNativeArray(ReadableNativeArray* otherArray);
+  void pushNativeMap(ReadableNativeMap* map);
 
   static void registerNatives();
 };

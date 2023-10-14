@@ -187,7 +187,7 @@ public class JavaOnlyMap implements ReadableMap, WritableMap {
   }
 
   @Override
-  public void putMap(String key, WritableMap value) {
+  public void putMap(String key, ReadableMap value) {
     mBackingMap.put(key, value);
   }
 
@@ -197,7 +197,7 @@ public class JavaOnlyMap implements ReadableMap, WritableMap {
   }
 
   @Override
-  public void putArray(String key, WritableArray value) {
+  public void putArray(String key, ReadableArray value) {
     mBackingMap.put(key, value);
   }
 
