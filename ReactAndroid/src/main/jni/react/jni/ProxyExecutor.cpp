@@ -9,11 +9,8 @@
 #include <cxxreact/ModuleRegistry.h>
 #include <cxxreact/SystraceSection.h>
 #include <fb/assert.h>
-#include <fb/Environment.h>
 #include <folly/json.h>
 #include <folly/Memory.h>
-#include <jni/LocalReference.h>
-#include <jni/LocalString.h>
 
 namespace facebook {
 namespace react {

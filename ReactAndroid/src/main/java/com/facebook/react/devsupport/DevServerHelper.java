@@ -368,17 +368,7 @@ public class DevServerHelper {
   public void downloadBundleFromURL(
     DevBundleDownloadListener callback,
     File outputFile, String bundleURL, BundleDownloader.BundleInfo bundleInfo) {
-    mBundleDownloader.downloadBundleFromURL(callback, outputFile, bundleURL, bundleInfo, getDeltaClientType());
-  }
-
-  private BundleDeltaClient.ClientType getDeltaClientType() {
-    if (mSettings.isBundleDeltasCppEnabled()) {
-      return BundleDeltaClient.ClientType.NATIVE;
-    } else if (mSettings.isBundleDeltasEnabled()) {
-      return BundleDeltaClient.ClientType.DEV_SUPPORT;
-    } else {
-      return BundleDeltaClient.ClientType.NONE;
-    }
+    mBundleDownloader.downloadBundleFromURL(callback, outputFile, bundleURL, bundleInfo);
   }
 
   /**
@@ -441,7 +431,7 @@ public class DevServerHelper {
   public String getDevServerBundleURL(final String jsModulePath) {
     return createBundleURL(
       jsModulePath,
-      mSettings.isBundleDeltasEnabled() ? BundleType.DELTA : BundleType.BUNDLE,
+      BundleType.BUNDLE,
       mSettings.getPackagerConnectionSettings().getDebugServerHost()
     );
   }
@@ -606,7 +596,7 @@ public class DevServerHelper {
 
   public String getSourceUrl(String mainModuleName) {
     return createBundleURL(
-        mainModuleName, mSettings.isBundleDeltasEnabled() ? BundleType.DELTA : BundleType.BUNDLE);
+        mainModuleName, BundleType.BUNDLE);
   }
 
   public String getJSBundleURLForRemoteDebugging(String mainModuleName) {
