@@ -1,4 +1,5 @@
 "use strict";
+const { execSync } = require('child_process');
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -75,6 +76,10 @@ function enableWatchMode(messageSocket) {
           break;
       }
     } else if (name === 'r') {
+      execSync('adb reverse tcp:8081 tcp:8081', {
+        stdio: 'inherit',
+      })
+
       messageSocket.broadcast('reload', null);
 
       console.info('Reloading app...');
