@@ -34,7 +34,9 @@ function printWatchModeInstructions() {
   const chalk = _chalk().default
   console.log(
     `\n\nTo ${chalk.cyan('reload')} the app press`, chalk.cyan('"r"'),
-    `\nTo ${chalk.cyan('open')} developer menu press`, chalk.cyan('"d"'));
+    `\nTo ${chalk.cyan('open')} developer menu press`, chalk.cyan('"d"'),
+    `\nTo run adb reverse port 8081`, chalk.cyan('"t"')
+    );
 }
 
 function enableWatchMode(messageSocket) {
@@ -76,10 +78,6 @@ function enableWatchMode(messageSocket) {
           break;
       }
     } else if (name === 'r') {
-      execSync('adb reverse tcp:8081 tcp:8081', {
-        stdio: 'inherit',
-      })
-
       messageSocket.broadcast('reload', null);
 
       console.info('Reloading app...');
@@ -87,6 +85,14 @@ function enableWatchMode(messageSocket) {
       messageSocket.broadcast('devMenu', null);
 
       console.info('Opening developer menu...');
+    } else if (name === 't') {
+      try {
+        execSync('adb reverse tcp:8081 tcp:8081', {
+          stdio: 'inherit',
+        })
+      } catch (e) {
+        console.info(e);
+      }
     }
   });
 }
