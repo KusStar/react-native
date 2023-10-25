@@ -35,7 +35,7 @@ function printWatchModeInstructions() {
   console.log(
     `\n\nTo ${chalk.cyan('reload')} the app press`, chalk.cyan('"r"'),
     `\nTo ${chalk.cyan('open')} developer menu press`, chalk.cyan('"d"'),
-    `\nTo run adb reverse port 8081`, chalk.cyan('"t"')
+    `\nTo run adb reverse port 8081 press`, chalk.cyan('"t"')
     );
 }
 
