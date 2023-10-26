@@ -33,6 +33,7 @@ import static com.facebook.systrace.Systrace.TRACE_TAG_REACT_JS_VM_CALLS;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Process;
 import androidx.core.view.ViewCompat;
@@ -71,6 +72,7 @@ import com.facebook.react.devsupport.RedBoxHandler;
 import com.facebook.react.devsupport.interfaces.DevBundleDownloadListener;
 import com.facebook.react.devsupport.interfaces.DevSupportManager;
 import com.facebook.react.devsupport.interfaces.PackagerStatusCallback;
+import com.facebook.react.modules.appearance.AppearanceModule;
 import com.facebook.react.modules.appregistry.AppRegistry;
 import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
@@ -689,6 +691,19 @@ public class ReactInstanceManager {
     ReactContext currentContext = getCurrentReactContext();
     if (currentContext != null) {
       currentContext.onActivityResult(activity, requestCode, resultCode, data);
+    }
+  }
+
+  /** Call this from {@link Activity#onConfigurationChanged()}. */
+  @ThreadConfined(UI)
+  public void onConfigurationChanged(Context updatedContext, @Nullable Configuration newConfig) {
+    UiThreadUtil.assertOnUiThread();
+
+    ReactContext currentReactContext = getCurrentReactContext();
+    if (currentReactContext != null) {
+      currentReactContext
+          .getNativeModule(AppearanceModule.class)
+          .onConfigurationChanged(updatedContext);
     }
   }
 

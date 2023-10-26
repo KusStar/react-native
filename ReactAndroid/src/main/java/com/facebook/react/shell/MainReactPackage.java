@@ -14,6 +14,7 @@ import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.module.model.ReactModuleInfoProvider;
 import com.facebook.react.modules.accessibilityinfo.AccessibilityInfoModule;
+import com.facebook.react.modules.appearance.AppearanceModule;
 import com.facebook.react.modules.appstate.AppStateModule;
 import com.facebook.react.modules.blob.BlobModule;
 import com.facebook.react.modules.blob.FileReaderModule;
@@ -89,6 +90,14 @@ public class MainReactPackage extends LazyReactPackage {
               @Override
               public NativeModule get() {
                 return new AccessibilityInfoModule(context);
+              }
+            }),
+        ModuleSpec.nativeModuleSpec(
+            AppearanceModule.class,
+            new Provider<NativeModule>() {
+              @Override
+              public NativeModule get() {
+                return new AppearanceModule(context);
               }
             }),
         ModuleSpec.nativeModuleSpec(
