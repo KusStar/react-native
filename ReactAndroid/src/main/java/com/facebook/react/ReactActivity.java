@@ -18,6 +18,8 @@ import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler;
 import com.facebook.react.modules.core.PermissionAwareActivity;
 import com.facebook.react.modules.core.PermissionListener;
 
+import android.content.res.Configuration;
+
 /**
  * Base Activity for React Native applications.
  */
@@ -123,6 +125,12 @@ public abstract class ReactActivity extends Activity
     String[] permissions,
     int[] grantResults) {
     mDelegate.onRequestPermissionsResult(requestCode, permissions, grantResults);
+  }
+
+  @Override
+  public void onConfigurationChanged(Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+    mDelegate.onConfigurationChanged(newConfig);
   }
 
   protected final ReactNativeHost getReactNativeHost() {

@@ -701,9 +701,12 @@ public class ReactInstanceManager {
 
     ReactContext currentReactContext = getCurrentReactContext();
     if (currentReactContext != null) {
-      currentReactContext
-          .getNativeModule(AppearanceModule.class)
-          .onConfigurationChanged(updatedContext);
+      AppearanceModule appearanceModule =
+          currentReactContext.getNativeModule(AppearanceModule.class);
+
+      if (appearanceModule != null) {
+        appearanceModule.onConfigurationChanged(updatedContext);
+      }
     }
   }
 

@@ -21,6 +21,7 @@ import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler;
 import com.facebook.react.modules.core.PermissionListener;
 
 import javax.annotation.Nullable;
+import android.content.res.Configuration;
 
 /**
  * Delegate class for {@link ReactActivity} and {@link ReactFragmentActivity}. You can subclass this
@@ -203,6 +204,12 @@ public class ReactActivityDelegate {
         }
       }
     };
+  }
+
+  public void onConfigurationChanged(Configuration newConfig) {
+    if (getReactNativeHost().hasInstance()) {
+      getReactInstanceManager().onConfigurationChanged(getContext(), newConfig);
+    }
   }
 
   private Context getContext() {
