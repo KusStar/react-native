@@ -11,6 +11,27 @@
 namespace facebook {
 namespace jsi {
 
+namespace {
+  // This is used for generating short exception strings.
+  std::string kindToString(const Value& v, Runtime* rt = nullptr) {
+    if (v.isUndefined()) {
+      return "undefined";
+    } else if (v.isNull()) {
+      return "null";
+    } else if (v.isBool()) {
+      return v.getBool() ? "true" : "false";
+    } else if (v.isNumber()) {
+      return "a number";
+    } else if (v.isString()) {
+      return "a string";
+    } else {
+      assert(v.isObject() && "Expecting object.");
+      return rt != nullptr && v.getObject(*rt).isFunction(*rt) ? "a function"
+                                                              : "an object";
+    }
+  }
+}
+
 namespace detail {
 
 void throwJSError(Runtime& rt, const char* msg) {
@@ -20,6 +41,8 @@ void throwJSError(Runtime& rt, const char* msg) {
 } // namespace detail
 
 Buffer::~Buffer() {}
+
+PreparedJavaScript::~PreparedJavaScript() = default;
 
 Value HostObject::get(Runtime&, const PropNameID&) {
   return Value();
@@ -207,6 +230,15 @@ bool Value::strictEquals(Runtime& runtime, const Value& a, const Value& b) {
           static_cast<const Object&>(b.data_.pointer));
   }
   return false;
+}
+
+bool Value::asBool() const {
+  if (!isBool()) {
+    throw JSINativeException(
+        "Value is " + kindToString(*this) + ", expected a boolean");
+  }
+
+  return getBool();
 }
 
 double Value::asNumber() const {

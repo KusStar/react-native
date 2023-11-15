@@ -45,6 +45,14 @@ class StringBuffer : public Buffer {
   std::string s_;
 };
 
+class JSI_EXPORT PreparedJavaScript {
+ protected:
+  PreparedJavaScript() = default;
+
+ public:
+  virtual ~PreparedJavaScript() = 0;
+};
+
 class Runtime;
 class Pointer;
 class PropNameID;
@@ -924,6 +932,8 @@ class Value {
     assert(isBool());
     return data_.boolean;
   }
+
+  bool asBool() const;
 
   /// \return the number value, or asserts if not a number.
   double getNumber() const {

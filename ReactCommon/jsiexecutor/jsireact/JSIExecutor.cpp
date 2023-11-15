@@ -93,13 +93,13 @@ void JSIExecutor::loadApplicationScript(
 
   // TODO: check for and use precompiled HBC
 
-  // NOTE: inject sqlite_init fns
+  // NOTE: inject op_sqlite_init fns
   runtime_->global().setProperty(
       *runtime_,
-      "quick_sqlite_init",
+      "op_sqlite_init",
       Function::createFromHostFunction(
           *runtime_,
-          PropNameID::forAscii(*runtime_, "quick_sqlite_init"),
+          PropNameID::forAscii(*runtime_, "op_sqlite_init"),
           1,
           [&](
               jsi::Runtime& rt,
@@ -107,7 +107,7 @@ void JSIExecutor::loadApplicationScript(
               const jsi::Value* args,
               size_t count) {
             if (args[0].isString()) {
-              ops::install(rt, jsCallInvoker, args[0].getString(rt).utf8(rt).c_str());
+              opsqlite::install(rt, jsCallInvoker, args[0].getString(rt).utf8(rt).c_str());
               return jsi::Value(true);
             }
             return jsi::Value(false);
