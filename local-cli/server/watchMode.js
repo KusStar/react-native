@@ -36,6 +36,7 @@ function printWatchModeInstructions() {
     `\n\nTo ${chalk.bold.cyan('reload')} the app press`, chalk.bold.cyan('"r"'),
     `\nTo ${chalk.bold.cyan('open')} developer menu press`, chalk.bold.cyan('"d"'),
     `\nTo ${chalk.bold.magenta('reverse')} the port 8081, press`, chalk.bold.magenta('"t"'),
+    `\nTo ${chalk.bold.green('install')} the app, press`, chalk.bold.green('"i"'),
     `\nTo ${chalk.bold.green('launch')} the app, press`, chalk.bold.green('"a"'),
     `\nTo ${chalk.bold.red('stop')} the app, press`, chalk.bold.red('"s"'),
     `\nTo ${chalk.bold.yellow('clear screen')}, press`, chalk.bold.cyan('"c"'),
@@ -113,6 +114,16 @@ function enableWatchMode(messageSocket) {
           stdio: 'inherit',
         })
         console.info('Stopped');
+      } catch (e) {
+        e.message && console.info(e.message);
+        console.log()
+      }
+    } else if (name === 'i') {
+      try {
+        execSync('npx react-native run-android --no-packager', {
+          stdio: 'inherit',
+        })
+        console.info('Installed');
       } catch (e) {
         e.message && console.info(e.message);
         console.log()
