@@ -33,12 +33,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function printWatchModeInstructions() {
   const chalk = _chalk().default
   console.log(
-    `\n\nTo ${chalk.cyan('reload')} the app press`, chalk.cyan('"r"'),
-    `\nTo ${chalk.cyan('open')} developer menu press`, chalk.cyan('"d"'),
-    `\nTo run adb reverse port 8081 press`, chalk.cyan('"t"'),
-    `\nTo start the app, press`, chalk.cyan('"a"'),
-    `\nTo stop the app, press`, chalk.cyan('"q"'),
-    `\n\nTo pritnt the help, press`, chalk.cyan('"h"'),
+    `\n\nTo ${chalk.bold.cyan('reload')} the app press`, chalk.bold.cyan('"r"'),
+    `\nTo ${chalk.bold.cyan('open')} developer menu press`, chalk.bold.cyan('"d"'),
+    `\nTo ${chalk.bold.magenta('reverse')} the port 8081, press`, chalk.bold.magenta('"t"'),
+    `\nTo ${chalk.bold.green('launch')} the app, press`, chalk.bold.green('"a"'),
+    `\nTo ${chalk.bold.red('stop')} the app, press`, chalk.bold.red('"s"'),
+    `\nTo ${chalk.bold.yellow('clear screen')}, press`, chalk.bold.cyan('"c"'),
+    `\nTo print the ${chalk.bold.yellow('help')}, press`, chalk.bold.yellow('"h"'),
   );
 }
 
@@ -93,7 +94,8 @@ function enableWatchMode(messageSocket) {
         })
         console.info('Reversed');
       } catch (e) {
-        console.info(e);
+        e.message && console.info(e.message);
+        console.log()
       }
     } else if (name === 'a') {
       try {
@@ -102,20 +104,25 @@ function enableWatchMode(messageSocket) {
         })
         console.info('Started');
       } catch (e) {
-        console.info(e);
+        e.message && console.info(e.message);
+        console.log()
       }
-    } else if (name === 'q') {
+    } else if (name === 's') {
       try {
         execSync('adb shell am force-stop com.kuss.rewind', {
           stdio: 'inherit',
         })
         console.info('Stopped');
       } catch (e) {
-        console.info(e);
+        e.message && console.info(e.message);
+        console.log()
       }
+    } else if (name === 'c') {
+      console.clear()
     } else if (name === 'h') {
-      console.log()
+      console.clear()
       printWatchModeInstructions()
+      console.log()
     }
   });
 }
