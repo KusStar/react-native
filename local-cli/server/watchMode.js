@@ -35,8 +35,11 @@ function printWatchModeInstructions() {
   console.log(
     `\n\nTo ${chalk.cyan('reload')} the app press`, chalk.cyan('"r"'),
     `\nTo ${chalk.cyan('open')} developer menu press`, chalk.cyan('"d"'),
-    `\nTo run adb reverse port 8081 press`, chalk.cyan('"t"')
-    );
+    `\nTo run adb reverse port 8081 press`, chalk.cyan('"t"'),
+    `\nTo start the app, press`, chalk.cyan('"a"'),
+    `\nTo stop the app, press`, chalk.cyan('"q"'),
+    `\n\nTo pritnt the help, press`, chalk.cyan('"h"'),
+  );
 }
 
 function enableWatchMode(messageSocket) {
@@ -79,20 +82,40 @@ function enableWatchMode(messageSocket) {
       }
     } else if (name === 'r') {
       messageSocket.broadcast('reload', null);
-
       console.info('Reloading app...');
     } else if (name === 'd') {
       messageSocket.broadcast('devMenu', null);
-
       console.info('Opening developer menu...');
     } else if (name === 't') {
       try {
         execSync('adb reverse tcp:8081 tcp:8081', {
           stdio: 'inherit',
         })
+        console.info('Reversed');
       } catch (e) {
         console.info(e);
       }
+    } else if (name === 'a') {
+      try {
+        execSync('adb shell am start -n com.kuss.rewind/.MainActivity', {
+          stdio: 'inherit',
+        })
+        console.info('Started');
+      } catch (e) {
+        console.info(e);
+      }
+    } else if (name === 'q') {
+      try {
+        execSync('adb shell am force-stop com.kuss.rewind', {
+          stdio: 'inherit',
+        })
+        console.info('Stopped');
+      } catch (e) {
+        console.info(e);
+      }
+    } else if (name === 'h') {
+      console.log()
+      printWatchModeInstructions()
     }
   });
 }
