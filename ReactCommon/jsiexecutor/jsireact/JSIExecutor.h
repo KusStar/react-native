@@ -3,8 +3,8 @@
 #pragma once
 
 #include "JSINativeModules.h"
-// NOTE: from https://github.com/OP-Engineering/op-sqlite
-#include "opsqlite/bindings.h"
+// NOTE: from react-native-quick-sqlite
+#include "quicksqlite/bindings.h"
 
 #include <cxxreact/CallInvoker.h>
 #include <cxxreact/JSBigString.h>
