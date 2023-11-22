@@ -1,6 +1,6 @@
 {
   "name": "@kuss/react-native",
-  "version": "0.56.1-rc.10",
+  "version": "0.56.1-rc.11",
   "publishConfig": {
     "access": "public"
   },
