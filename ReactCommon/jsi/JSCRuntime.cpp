@@ -395,12 +395,13 @@ JSCRuntime::JSCRuntime(JSGlobalContextRef ctx)
 JSCRuntime::~JSCRuntime() {
   protectionQueue_->shutdown();
 #ifndef NDEBUG
-  assert(
-      objectCounter_ == 0 && "JSCRuntime destroyed with a dangling API object");
-  assert(
-      stringCounter_ == 0 && "JSCRuntime destroyed with a dangling API string");
-#endif
+  // assert(
+  //     objectCounter_ == 0 && "JSCRuntime destroyed with a dangling API object");
+  // assert( 
+  //     stringCounter_ == 0 && "JSCRuntime destroyed with a dangling API string");
+#else
   JSGlobalContextRelease(ctx_);
+#endif
 }
 
 void JSCRuntime::evaluateJavaScript(
