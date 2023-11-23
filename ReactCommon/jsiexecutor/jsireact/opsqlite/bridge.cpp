@@ -367,7 +367,9 @@ namespace opsqlite {
                             }
                             i++;
                         }
-                        results->push_back(row);
+                        if (results != nullptr) {
+                          results->push_back(row);
+                        }
                         break;
                     }
                         
@@ -377,14 +379,16 @@ namespace opsqlite {
                         
                         while (i < count)
                         {
-                            column_name = sqlite3_column_name(statement, i);
-                            const char *type = sqlite3_column_decltype(statement, i);
-                            auto metadata = DynamicHostObject();
-                            metadata.fields.push_back(std::make_pair("name", column_name));
-                            metadata.fields.push_back(std::make_pair("index", i));
-                            metadata.fields.push_back(std::make_pair("type", type != nullptr ? type : "UNKNOWN"));
-                            
-                            metadatas->push_back(metadata);
+                            if (metadatas != nullptr) {
+                              column_name = sqlite3_column_name(statement, i);
+                              const char *type = sqlite3_column_decltype(statement, i);
+                              auto metadata = DynamicHostObject();
+                              metadata.fields.push_back(std::make_pair("name", column_name));
+                              metadata.fields.push_back(std::make_pair("index", i));
+                              metadata.fields.push_back(std::make_pair("type", type != NULL ? type : "UNKNOWN"));
+
+                              metadatas->push_back(metadata);
+                            }
                             i++;
                         }
                         
