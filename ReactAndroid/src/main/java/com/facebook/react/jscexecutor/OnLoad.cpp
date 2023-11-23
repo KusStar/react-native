@@ -15,12 +15,17 @@ namespace react {
 namespace {
 
 class JSCExecutorFactory : public JSExecutorFactory {
+private:
+  bool isDebug_ = false;
 public:
+  JSCExecutorFactory(bool isDebug): isDebug_(isDebug) {}
+
   std::unique_ptr<JSExecutor> createJSExecutor(
       std::shared_ptr<ExecutorDelegate> delegate,
       std::shared_ptr<MessageQueueThread> jsQueue) override {
+    
     return folly::make_unique<JSIExecutor>(
-      jsc::makeJSCRuntime(),
+      jsc::makeJSCRuntime(isDebug_),
       delegate,
       [](const std::string& message, unsigned int logLevel) {
         reactAndroidLoggingHook(message, logLevel);
@@ -29,9 +34,7 @@ public:
       nullptr);
   }
 };
-
 }
-
 // This is not like JSCJavaScriptExecutor, which calls JSC directly.  This uses
 // JSIExecutor with JSCRuntime.
 class JSCExecutorHolder
@@ -40,13 +43,14 @@ class JSCExecutorHolder
   static constexpr auto kJavaDescriptor = "Lcom/facebook/react/jscexecutor/JSCExecutor;";
 
   static jni::local_ref<jhybriddata> initHybrid(
-      jni::alias_ref<jclass>, ReadableNativeMap*) {
+      jni::alias_ref<jclass>, ReadableNativeMap* jscConfig) {
     // This is kind of a weird place for stuff, but there's no other
     // good place for initialization which is specific to JSC on
     // Android.
     JReactMarker::setLogPerfMarkerIfNeeded();
+    bool isDebug = jscConfig->getBooleanKey("isDebug");
     // TODO mhorowitz T28461666 fill in some missing nice to have glue
-    return makeCxxInstance(folly::make_unique<JSCExecutorFactory>());
+    return makeCxxInstance(folly::make_unique<JSCExecutorFactory>(isDebug));
   }
 
   static void registerNatives() {

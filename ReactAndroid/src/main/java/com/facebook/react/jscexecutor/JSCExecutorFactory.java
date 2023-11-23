@@ -7,6 +7,10 @@
 
 package com.facebook.react.jscexecutor;
 
+import android.util.Log;
+
+import java.lang.reflect.Field;
+
 import com.facebook.react.bridge.JavaScriptExecutor;
 import com.facebook.react.bridge.JavaScriptExecutorFactory;
 import com.facebook.react.bridge.WritableNativeMap;
@@ -26,6 +30,20 @@ public class JSCExecutorFactory implements JavaScriptExecutorFactory {
     jscConfig.putString("OwnerIdentity", "ReactNative");
     jscConfig.putString("AppIdentity", mAppName);
     jscConfig.putString("DeviceIdentity", mDeviceName);
+
+    boolean isDebug = false;
+    try {
+        Class<?> clazz = Class.forName("com.kuss.rewind.BuildConfig");
+        Field field = clazz.getField("DEBUG");
+        isDebug = (boolean) field.get(null);
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    Log.i("JSCExecutorFactory", "isDebug: " + isDebug);
+
+    jscConfig.putBoolean("isDebug", isDebug);
+
     return new JSCExecutor(jscConfig);
   }
 

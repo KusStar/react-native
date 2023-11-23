@@ -444,7 +444,7 @@ void JSCRuntime::JSCObjectValue::invalidate() {
     // JSValueUnprotect, in order to conform to the documented API, but
     // use the "unsafe" synchronous version on iOS 11 and earlier.
 
-    if (!ctxInvalid_) {
+    if (!jsc::BUILD_CONFIG_DEBUG && !ctxInvalid_) {
       JSValueUnprotect(ctx_, obj_);
     }
     delete this;
@@ -1244,7 +1244,8 @@ void JSCRuntime::checkException(
   }
 }
 
-std::unique_ptr<jsi::Runtime> makeJSCRuntime() {
+std::unique_ptr<jsi::Runtime> makeJSCRuntime(bool isDebug) {
+  jsc::BUILD_CONFIG_DEBUG = isDebug;
   return std::make_unique<JSCRuntime>();
 }
 

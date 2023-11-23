@@ -7,8 +7,9 @@
 
 namespace facebook {
 namespace jsc {
+static bool BUILD_CONFIG_DEBUG = false;
 
-std::unique_ptr<jsi::Runtime> makeJSCRuntime();
+std::unique_ptr<jsi::Runtime> makeJSCRuntime(bool isDebug);
 
 } // namespace jsc
 } // namespace facebook
