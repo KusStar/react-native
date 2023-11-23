@@ -32,16 +32,43 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function printWatchModeInstructions() {
   const chalk = _chalk().default
+  const cmds = [
+    {
+      key: chalk.bold.cyan('r'),
+      desc: `${chalk.bold.cyan('reload')} the app`
+    },
+    {
+      key: chalk.bold.cyan('d'),
+      desc: `${chalk.bold.cyan('open')} developer menu`
+    },
+    {
+      key: chalk.bold.magenta('t'),
+      desc: `${chalk.bold.magenta('reverse')} the port 8081`
+    },
+    {
+      key: chalk.bold.green('i'),
+      desc: `${chalk.bold.green('install')} the app`
+    },
+    {
+      key: chalk.bold.green('a'),
+      desc: `${chalk.bold.green('launch')} the app`
+    },
+    {
+      key: chalk.bold.red('s'),
+      desc: `${chalk.bold.red('stop')} the app`
+    },
+    {
+      key: chalk.bold.yellow('c'),
+      desc: `${chalk.bold.yellow('clear screen')}`
+    },
+    {
+      key: chalk.bold.yellow('h'),
+      desc: `${chalk.bold.yellow('help')}`
+    },
+  ]
   console.log(
-    `\n\nTo ${chalk.bold.cyan('reload')} the app press`, chalk.bold.cyan('"r"'),
-    `\nTo ${chalk.bold.cyan('open')} developer menu press`, chalk.bold.cyan('"d"'),
-    `\nTo ${chalk.bold.magenta('reverse')} the port 8081, press`, chalk.bold.magenta('"t"'),
-    `\nTo ${chalk.bold.green('install')} the app, press`, chalk.bold.green('"i"'),
-    `\nTo ${chalk.bold.green('launch')} the app, press`, chalk.bold.green('"a"'),
-    `\nTo ${chalk.bold.red('stop')} the app, press`, chalk.bold.red('"s"'),
-    `\nTo ${chalk.bold.yellow('clear screen')}, press`, chalk.bold.cyan('"c"'),
-    `\nTo print the ${chalk.bold.yellow('help')}, press`, chalk.bold.yellow('"h"'),
-  );
+    '\n\n' + cmds.map(({ key, desc }) => `${key} - ${desc}`).join('\n')
+  )
 }
 
 function enableWatchMode(messageSocket) {
