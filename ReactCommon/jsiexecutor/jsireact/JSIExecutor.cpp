@@ -10,6 +10,7 @@
 #include <folly/json.h>
 #include <glog/logging.h>
 #include <jsi/JSIDynamic.h>
+#include <jsi/instrumentation.h>
 
 #include <sstream>
 #include <stdexcept>
@@ -40,14 +41,20 @@ std::unique_ptr<JSExecutor> JSIExecutorFactory::createJSExecutor(
 
 class JSIExecutor::NativeModuleProxy : public jsi::HostObject {
  public:
-  NativeModuleProxy(JSIExecutor& executor) : executor_(executor) {}
+  NativeModuleProxy(std::shared_ptr<JSINativeModules> nativeModules)
+      : weakNativeModules_(nativeModules) {}
 
-  Value get(Runtime& rt, const PropNameID& name) override {
+  Value get(Runtime &rt, const PropNameID &name) override {
     if (name.utf8(rt) == "name") {
       return jsi::String::createFromAscii(rt, "NativeModules");
     }
 
-    return executor_.nativeModules_.getModule(rt, name);
+    auto nativeModules = weakNativeModules_.lock();
+    if (!nativeModules) {
+      return nullptr;
+    }
+
+    return nativeModules->getModule(rt, name);
   }
 
   void set(Runtime&, const PropNameID&, const Value&) override {
@@ -56,7 +63,7 @@ class JSIExecutor::NativeModuleProxy : public jsi::HostObject {
   }
 
  private:
-  JSIExecutor& executor_;
+  std::weak_ptr<JSINativeModules> weakNativeModules_;
 };
 
 namespace {
@@ -77,7 +84,8 @@ JSIExecutor::JSIExecutor(
     RuntimeInstaller runtimeInstaller)
     : runtime_(runtime),
       delegate_(delegate),
-      nativeModules_(delegate ? delegate->getModuleRegistry() : nullptr),
+      nativeModules_(std::make_shared<JSINativeModules>(
+          delegate ? delegate->getModuleRegistry() : nullptr)),
       logger_(logger),
       scopedTimeoutInvoker_(scopedTimeoutInvoker),
       runtimeInstaller_(runtimeInstaller) {
@@ -93,13 +101,13 @@ void JSIExecutor::loadApplicationScript(
 
   // TODO: check for and use precompiled HBC
 
-  // NOTE: inject sqlite_init fns
+  // NOTE: inject op_sqlite_init fns
   runtime_->global().setProperty(
       *runtime_,
-      "quick_sqlite_init",
+      "op_sqlite_init",
       Function::createFromHostFunction(
           *runtime_,
-          PropNameID::forAscii(*runtime_, "quick_sqlite_init"),
+          PropNameID::forAscii(*runtime_, "op_sqlite_init"),
           1,
           [&](
               jsi::Runtime& rt,
@@ -107,7 +115,7 @@ void JSIExecutor::loadApplicationScript(
               const jsi::Value* args,
               size_t count) {
             if (args[0].isString()) {
-              ops::install(rt, jsCallInvoker, args[0].getString(rt).utf8(rt).c_str());
+              opsqlite::install(rt, jsCallInvoker, args[0].getString(rt).utf8(rt).c_str());
               return jsi::Value(true);
             }
             return jsi::Value(false);
@@ -117,7 +125,7 @@ void JSIExecutor::loadApplicationScript(
       *runtime_,
       "nativeModuleProxy",
       Object::createFromHostObject(
-          *runtime_, std::make_shared<NativeModuleProxy>(*this)));
+          *runtime_, std::make_shared<NativeModuleProxy>(nativeModules_)));
 
   runtime_->global().setProperty(
       *runtime_,
@@ -316,6 +324,74 @@ bool JSIExecutor::isInspectable() {
   return runtime_->isInspectable();
 }
 
+void JSIExecutor::handleMemoryPressure(int pressureLevel) {
+  // The level is an enum value passed by the Android OS to an onTrimMemory
+  // event callback. Defined in ComponentCallbacks2.
+  enum AndroidMemoryPressure {
+    TRIM_MEMORY_BACKGROUND = 40,
+    TRIM_MEMORY_COMPLETE = 80,
+    TRIM_MEMORY_MODERATE = 60,
+    TRIM_MEMORY_RUNNING_CRITICAL = 15,
+    TRIM_MEMORY_RUNNING_LOW = 10,
+    TRIM_MEMORY_RUNNING_MODERATE = 5,
+    TRIM_MEMORY_UI_HIDDEN = 20,
+  };
+  const char *levelName;
+  switch (pressureLevel) {
+    case TRIM_MEMORY_BACKGROUND:
+      levelName = "TRIM_MEMORY_BACKGROUND";
+      break;
+    case TRIM_MEMORY_COMPLETE:
+      levelName = "TRIM_MEMORY_COMPLETE";
+      break;
+    case TRIM_MEMORY_MODERATE:
+      levelName = "TRIM_MEMORY_MODERATE";
+      break;
+    case TRIM_MEMORY_RUNNING_CRITICAL:
+      levelName = "TRIM_MEMORY_RUNNING_CRITICAL";
+      break;
+    case TRIM_MEMORY_RUNNING_LOW:
+      levelName = "TRIM_MEMORY_RUNNING_LOW";
+      break;
+    case TRIM_MEMORY_RUNNING_MODERATE:
+      levelName = "TRIM_MEMORY_RUNNING_MODERATE";
+      break;
+    case TRIM_MEMORY_UI_HIDDEN:
+      levelName = "TRIM_MEMORY_UI_HIDDEN";
+      break;
+    default:
+      levelName = "UNKNOWN";
+      break;
+  }
+
+  switch (pressureLevel) {
+    case TRIM_MEMORY_RUNNING_LOW:
+    case TRIM_MEMORY_RUNNING_MODERATE:
+    case TRIM_MEMORY_UI_HIDDEN:
+      // For non-severe memory trims, do nothing.
+      LOG(INFO) << "Memory warning (pressure level: " << levelName
+                << ") received by JS VM, ignoring because it's non-severe";
+      break;
+    case TRIM_MEMORY_BACKGROUND:
+    case TRIM_MEMORY_COMPLETE:
+    case TRIM_MEMORY_MODERATE:
+    case TRIM_MEMORY_RUNNING_CRITICAL:
+      // For now, pressureLevel is unused by collectGarbage.
+      // This may change in the future if the JS GC has different styles of
+      // collections.
+      LOG(INFO) << "Memory warning (pressure level: " << levelName
+                << ") received by JS VM, running a GC";
+      runtime_->instrumentation().collectGarbage(levelName);
+      break;
+    default:
+      // Use the raw number instead of the name here since the name is
+      // meaningless.
+      LOG(WARNING) << "Memory warning (pressure level: " << pressureLevel
+                   << ") received by JS VM, unrecognized pressure level";
+      break;
+  }
+}
+
 void JSIExecutor::bindBridge() {
   std::call_once(bindFlag_, [this] {
     SystraceSection s("JSIExecutor::bindBridge (once)");
@@ -406,7 +482,7 @@ Value JSIExecutor::nativeCallSyncHook(const Value* args, size_t count) {
     throw std::invalid_argument("nativeCallSyncHook arg count must be 3");
   }
 
-  if (!args[2].asObject(*runtime_).isArray(*runtime_)) {
+  if (!args[2].isObject() || !args[2].asObject(*runtime_).isArray(*runtime_)) {
     throw std::invalid_argument(
         folly::to<std::string>("method parameters should be array"));
   }

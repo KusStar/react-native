@@ -4,7 +4,7 @@
 
 #include "JSINativeModules.h"
 // NOTE: from react-native-quick-sqlite
-#include "quicksqlite/bindings.h"
+#include "opsqlite/bindings.h"
 
 #include <cxxreact/CallInvoker.h>
 #include <cxxreact/JSBigString.h>
@@ -98,6 +98,7 @@ class JSIExecutor : public JSExecutor {
   std::string getDescription() override;
   void* getJavaScriptContext() override;
   bool isInspectable() override;
+  void handleMemoryPressure(int pressureLevel) override;
 
   // An implementation of JSIScopedTimeoutInvoker that simply runs the
   // invokee, with no timeout.
@@ -119,7 +120,7 @@ class JSIExecutor : public JSExecutor {
 
   std::shared_ptr<jsi::Runtime> runtime_;
   std::shared_ptr<ExecutorDelegate> delegate_;
-  JSINativeModules nativeModules_;
+  std::shared_ptr<JSINativeModules> nativeModules_;
   std::once_flag bindFlag_;
   std::unique_ptr<RAMBundleRegistry> bundleRegistry_;
   Logger logger_;

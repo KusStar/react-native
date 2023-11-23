@@ -40,7 +40,7 @@ class Instrumentation {
   virtual Value getHeapInfo(bool includeExpensive) = 0;
 
   /// perform a full garbage collection
-  virtual void collectGarbage() = 0;
+  virtual void collectGarbage(std::string cause) = 0;
 
   /// Captures the heap to a file
   ///
