@@ -256,6 +256,12 @@ void install(jsi::Runtime &rt, std::shared_ptr<react::CallInvoker> jsCallInvoker
                     std::shared_ptr<std::vector<DynamicHostObject>> metadata = std::make_shared<std::vector<DynamicHostObject>>();;
                     
                     auto status = sqliteExecute(dbName, query, &params, &results, metadata);
+
+                    if (status.type != SQLiteOk)
+                    {
+                        LOGE("executeAsync, query: %s\n", query.c_str());
+                        LOGE("executeAsync, Status: type: %d, message: %s\n", status.type, status.message.c_str());
+                    }
                     
                     if(invalidated) {
                         return;

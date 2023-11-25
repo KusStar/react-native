@@ -394,7 +394,10 @@ namespace opsqlite {
                         
                         isConsuming = false;
                         break;
-                        
+                    case SQLITE_MISUSE:
+                        LOGW("sqliteExecute, result code = 21, Library used incorrectly");
+                        isConsuming = false;
+                        break;    
                     default:
                         errorMessage = sqlite3_errmsg(db);
                         isFailed = true;
@@ -403,7 +406,7 @@ namespace opsqlite {
             }
             
             sqlite3_finalize(statement);
-        } while (remainingStatement != NULL && strcmp(remainingStatement, "") != 0 && !isFailed);
+        } while (remainingStatement != NULL && strcmp(remainingStatement, "") != 0 && !isFailed && isConsuming);
         
         
         if (isFailed)
