@@ -116,6 +116,7 @@ function enableWatchMode(messageSocket) {
       messageSocket.broadcast('devMenu', null);
       console.info('Opening developer menu...');
     } else if (name === 't') {
+      console.info('Try to reverse localhost:8081');
       try {
         execSync('adb reverse tcp:8081 tcp:8081', {
           stdio: 'inherit',
@@ -126,6 +127,7 @@ function enableWatchMode(messageSocket) {
         console.log()
       }
     } else if (name === 'a') {
+      console.info('Starting...');
       try {
         execSync('adb shell am start -n com.kuss.rewind/.MainActivity', {
           stdio: 'inherit',
@@ -136,6 +138,7 @@ function enableWatchMode(messageSocket) {
         console.log()
       }
     } else if (name === 's') {
+      console.info('Stop...');
       try {
         execSync('adb shell am force-stop com.kuss.rewind', {
           stdio: 'inherit',
@@ -146,6 +149,7 @@ function enableWatchMode(messageSocket) {
         console.log()
       }
     } else if (name === 'i') {
+      console.info('Installing...');
       try {
         execSync('npx react-native run-android --no-packager', {
           stdio: 'inherit',
