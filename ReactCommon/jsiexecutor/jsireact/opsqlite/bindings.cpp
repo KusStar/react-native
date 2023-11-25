@@ -455,6 +455,13 @@ void install(jsi::Runtime &rt, std::shared_ptr<react::CallInvoker> jsCallInvoker
         
         auto dbName = args[0].asString(rt).utf8(rt);
         auto callback = std::make_shared<jsi::Value>(rt, args[1]);
+
+        if (callback->isUndefined() || callback->isNull())
+        {
+            unregisterUpdateHook(dbName);
+            return {};
+        }
+
         updateHooks[dbName] = callback;
         
         auto hook = [&rt, callback](std::string dbName, std::string tableName, std::string operation, int rowId) {
@@ -497,6 +504,13 @@ void install(jsi::Runtime &rt, std::shared_ptr<react::CallInvoker> jsCallInvoker
         
         auto dbName = args[0].asString(rt).utf8(rt);
         auto callback = std::make_shared<jsi::Value>(rt, args[1]);
+
+        if (callback->isUndefined() || callback->isNull())
+        {
+            unregisterCommitHook(dbName);
+            return {};
+        }
+
         commitHooks[dbName] = callback;
         
         auto hook = [&rt, callback](std::string dbName) {
@@ -521,6 +535,13 @@ void install(jsi::Runtime &rt, std::shared_ptr<react::CallInvoker> jsCallInvoker
         
         auto dbName = args[0].asString(rt).utf8(rt);
         auto callback = std::make_shared<jsi::Value>(rt, args[1]);
+
+        if (callback->isUndefined() || callback->isNull())
+        {
+            unregisterRollbackHook(dbName);
+            return {};
+        }
+
         rollbackHooks[dbName] = callback;
         
         auto hook = [&rt, callback](std::string dbName) {

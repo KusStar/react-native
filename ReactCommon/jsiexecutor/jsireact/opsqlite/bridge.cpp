@@ -639,4 +639,70 @@ namespace opsqlite {
             SQLiteOk
         };
     }
+
+    BridgeResult unregisterUpdateHook(std::string const dbName) {
+        if (dbMap.count(dbName) == 0)
+        {
+            return {
+                SQLiteError,
+                "[op-sqlite] Database not opened: " + dbName
+            };
+        }
+        
+        sqlite3 *db = dbMap[dbName];
+        updateCallbackMap.erase(dbName);
+
+        sqlite3_update_hook(
+            db,
+            NULL,
+            NULL);
+
+        return {
+            SQLiteOk
+        };
+    }
+
+
+    BridgeResult unregisterCommitHook(std::string const dbName) {
+        if (dbMap.count(dbName) == 0)
+        {
+            return {
+                SQLiteError,
+                "[op-sqlite] Database not opened: " + dbName
+            };
+        }
+        
+        sqlite3 *db = dbMap[dbName];
+        commitCallbackMap.erase(dbName);
+        sqlite3_commit_hook(
+            db,
+            NULL,
+            NULL);
+
+        return {
+            SQLiteOk
+        };
+    }
+
+    BridgeResult unregisterRollbackHook(std::string const dbName) {
+        if (dbMap.count(dbName) == 0)
+        {
+            return {
+                SQLiteError,
+                "[op-sqlite] Database not opened: " + dbName
+            };
+        }
+        
+        sqlite3 *db = dbMap[dbName];
+        rollbackCallbackMap.erase(dbName);
+
+        sqlite3_rollback_hook(
+            db,
+            NULL,
+            NULL);
+
+        return {
+            SQLiteOk
+        };
+    }
 }

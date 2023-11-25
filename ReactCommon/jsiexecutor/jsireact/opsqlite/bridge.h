@@ -37,7 +37,9 @@ BridgeResult registerCommitHook(std::string const dbName,
                                 std::function<void (std::string dbName)> const callback);
 BridgeResult registerRollbackHook(std::string const dbName,
                                   std::function<void (std::string dbName)> const callback);
-
+BridgeResult unregisterUpdateHook(std::string const dbName);
+BridgeResult unregisterCommitHook(std::string const dbName);
+BridgeResult unregisterRollbackHook(std::string const dbName);
 }
 
 #endif /* bridge_h */
