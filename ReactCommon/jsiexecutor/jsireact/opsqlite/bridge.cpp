@@ -406,7 +406,7 @@ namespace opsqlite {
             }
             
             sqlite3_finalize(statement);
-        } while (remainingStatement != NULL && strcmp(remainingStatement, "") != 0 && !isFailed && isConsuming);
+        } while (remainingStatement != NULL && strcmp(remainingStatement, "") != 0 && !isFailed);
         
         
         if (isFailed)
