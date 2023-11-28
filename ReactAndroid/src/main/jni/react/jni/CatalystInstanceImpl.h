@@ -5,6 +5,7 @@
 
 #include <string>
 
+#include "CallInvokerHolder.h"
 #include <fb/fbjni.h>
 #include <folly/Memory.h>
 
@@ -75,12 +76,14 @@ class CatalystInstanceImpl : public jni::HybridClass<CatalystInstanceImpl> {
                          std::string&& jsonValue);
   jlong getJavaScriptContext();
   void handleMemoryPressure(int pressureLevel);
+  jni::alias_ref<CallInvokerHolder::javaobject> getJSCallInvokerHolder();
 
   // This should be the only long-lived strong reference, but every C++ class
   // will have a weak reference.
   std::shared_ptr<Instance> instance_;
   std::shared_ptr<ModuleRegistry> moduleRegistry_;
   std::shared_ptr<JMessageQueueThread> moduleMessageQueue_;
+  jni::global_ref<CallInvokerHolder::javaobject> jsCallInvokerHolder_;
 };
 
 }}

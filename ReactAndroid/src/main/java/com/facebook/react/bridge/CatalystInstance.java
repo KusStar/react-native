@@ -10,6 +10,7 @@ package com.facebook.react.bridge;
 import com.facebook.proguard.annotations.DoNotStrip;
 import com.facebook.react.bridge.queue.ReactQueueConfiguration;
 import com.facebook.react.common.annotations.VisibleForTesting;
+import com.facebook.react.turbomodule.core.interfaces.CallInvokerHolder;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -100,6 +101,12 @@ public interface CatalystInstance
    * synchronized(jsContext) { nativeThingNeedingJsContext(jsContext.get()); }
    */
   JavaScriptContextHolder getJavaScriptContextHolder();
+
+  /**
+   * Returns a hybrid object that contains a pointer to a JS CallInvoker, which is used to schedule
+   * work on the JS Thread. Required for TurboModuleManager initialization.
+   */
+  CallInvokerHolder getJSCallInvokerHolder();
 
   void addJSIModules(List<JSIModuleSpec> jsiModules);
 }

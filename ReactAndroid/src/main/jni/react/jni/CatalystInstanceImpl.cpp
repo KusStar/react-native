@@ -109,6 +109,9 @@ void CatalystInstanceImpl::registerNatives() {
     makeNativeMethod("setGlobalVariable", CatalystInstanceImpl::setGlobalVariable),
     makeNativeMethod("getJavaScriptContext", CatalystInstanceImpl::getJavaScriptContext),
     makeNativeMethod("jniHandleMemoryPressure", CatalystInstanceImpl::handleMemoryPressure),
+    makeNativeMethod(
+          "getJSCallInvokerHolder",
+          CatalystInstanceImpl::getJSCallInvokerHolder),
   });
 
   JNativeRunnable::registerNatives();
@@ -246,6 +249,16 @@ jlong CatalystInstanceImpl::getJavaScriptContext() {
 
 void CatalystInstanceImpl::handleMemoryPressure(int pressureLevel) {
   instance_->handleMemoryPressure(pressureLevel);
+}
+
+jni::alias_ref<CallInvokerHolder::javaobject>
+CatalystInstanceImpl::getJSCallInvokerHolder() {
+  if (!jsCallInvokerHolder_) {
+    jsCallInvokerHolder_ = jni::make_global(
+        CallInvokerHolder::newObjectCxxArgs(instance_->getJSCallInvoker()));
+  }
+
+  return jsCallInvokerHolder_;
 }
 
 }}

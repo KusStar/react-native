@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
+import com.facebook.react.turbomodule.core.CallInvokerHolderImpl;
 
 /**
  * This provides an implementation of the public CatalystInstance instance.  It is public because
@@ -94,6 +95,8 @@ public class CatalystInstanceImpl implements CatalystInstance {
   // C++ parts
   private final HybridData mHybridData;
   private native static HybridData initHybrid();
+
+  public native CallInvokerHolderImpl getJSCallInvokerHolder();
 
   private CatalystInstanceImpl(
       final ReactQueueConfigurationSpec reactQueueConfigurationSpec,
