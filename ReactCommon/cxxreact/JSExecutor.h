@@ -9,7 +9,7 @@
 #include <string>
 
 #include <cxxreact/NativeModule.h>
-#include <cxxreact/CallInvoker.h>
+#include <ReactCommon/CallInvoker.h>
 #include <folly/dynamic.h>
 
 #ifndef RN_EXPORT

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "CallInvoker.h"
+#include <ReactCommon/CallInvoker.h>
 
 #include <atomic>
 #include <functional>

@@ -6,7 +6,7 @@
 // NOTE: from react-native-quick-sqlite
 #include "opsqlite/bindings.h"
 
-#include <cxxreact/CallInvoker.h>
+#include <ReactCommon/CallInvoker.h>
 #include <cxxreact/JSBigString.h>
 #include <cxxreact/JSExecutor.h>
 #include <cxxreact/RAMBundleRegistry.h>

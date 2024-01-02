@@ -5,13 +5,13 @@
 
 #pragma once
 
-#include "CallInvoker.h"
 
 #include <condition_variable>
 #include <list>
 #include <memory>
 #include <mutex>
 
+#include <ReactCommon/CallInvoker.h>
 #include <cxxreact/NativeToJsBridge.h>
 
 #ifndef RN_EXPORT
