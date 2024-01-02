@@ -1,7 +1,7 @@
 #ifdef ANDROID
 // LOGS ANDROID
 #include <android/log.h>
-#define LOG_TAG "DEBUG"
+#define LOG_TAG "op-sqlite"
 #define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG, __VA_ARGS__)
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
@@ -12,27 +12,27 @@
 // LOGS NO ANDROID
 #include <stdio.h>
 #define LOG_TAG "op-sqlite"
-#define LOGV(...)      \
-  printf("  ");        \
-  printf(__VA_ARGS__); \
+#define LOGV(...)                                                              \
+  printf("  ");                                                                \
+  printf(__VA_ARGS__);                                                         \
   printf("\t -  <%s> \n", LOG_TAG);
-#define LOGD(...)      \
-  printf("  ");        \
-  printf(__VA_ARGS__); \
+#define LOGD(...)                                                              \
+  printf("  ");                                                                \
+  printf(__VA_ARGS__);                                                         \
   printf("\t -  <%s> \n", LOG_TAG);
-#define LOGI(...)      \
-  printf("  ");        \
-  printf(__VA_ARGS__); \
+#define LOGI(...)                                                              \
+  printf("  ");                                                                \
+  printf(__VA_ARGS__);                                                         \
   printf("\t -  <%s> \n", LOG_TAG);
-#define LOGW(...)          \
-  printf("  * Warning: "); \
-  printf(__VA_ARGS__);     \
+#define LOGW(...)                                                              \
+  printf("  * Warning: ");                                                     \
+  printf(__VA_ARGS__);                                                         \
   printf("\t -  <%s> \n", LOG_TAG);
-#define LOGE(...)           \
-  printf("  *** Error:  "); \
-  printf(__VA_ARGS__);      \
+#define LOGE(...)                                                              \
+  printf("  *** Error:  ");                                                    \
+  printf(__VA_ARGS__);                                                         \
   printf("\t -  <%s> \n", LOG_TAG);
-#define LOGSIMPLE(...) \
-  printf(" ");         \
+#define LOGSIMPLE(...)                                                         \
+  printf(" ");                                                                 \
   printf(__VA_ARGS__);
 #endif // ANDROID
