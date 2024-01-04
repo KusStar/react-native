@@ -392,6 +392,12 @@ void JSIExecutor::handleMemoryPressure(int pressureLevel) {
   }
 }
 
+void JSIExecutor::destroy() {
+  SystraceSection s(
+      "JSIExecutor::destroy");
+  opsqlite::clearState();
+}
+
 void JSIExecutor::bindBridge() {
   std::call_once(bindFlag_, [this] {
     SystraceSection s("JSIExecutor::bindBridge (once)");

@@ -99,6 +99,7 @@ class JSIExecutor : public JSExecutor {
   void* getJavaScriptContext() override;
   bool isInspectable() override;
   void handleMemoryPressure(int pressureLevel) override;
+  void destroy() override;
 
   // An implementation of JSIScopedTimeoutInvoker that simply runs the
   // invokee, with no timeout.
