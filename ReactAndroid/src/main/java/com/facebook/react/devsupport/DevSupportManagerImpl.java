@@ -566,8 +566,9 @@ public class DevSupportManagerImpl implements
               "isn't available");
       return;
     }
+
     mDevOptionsDialog =
-        new AlertDialog.Builder(context)
+        new AlertDialog.Builder(context, AlertDialog.THEME_DEVICE_DEFAULT_DARK)
             .setItems(
                 options.keySet().toArray(new String[0]),
                 new DialogInterface.OnClickListener() {
