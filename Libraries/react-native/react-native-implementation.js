@@ -24,17 +24,11 @@ const ReactNative = {
   get ActivityIndicator() {
     return require('ActivityIndicator');
   },
-  get ART() {
-    return require('ReactNativeART');
-  },
   get Button() {
     return require('Button');
   },
   get CheckBox() {
     return require('CheckBox');
-  },
-  get DatePickerIOS() {
-    return require('DatePickerIOS');
   },
   get DrawerLayoutAndroid() {
     return require('DrawerLayoutAndroid');
@@ -63,26 +57,14 @@ const ReactNative = {
   get ListView() {
     return require('ListView');
   },
-  get MaskedViewIOS() {
-    return require('MaskedViewIOS');
-  },
   get Modal() {
     return require('Modal');
-  },
-  get NavigatorIOS() {
-    return require('NavigatorIOS');
   },
   get Picker() {
     return require('Picker');
   },
-  get PickerIOS() {
-    return require('PickerIOS');
-  },
   get ProgressBarAndroid() {
     return require('ProgressBarAndroid');
-  },
-  get ProgressViewIOS() {
-    return require('ProgressViewIOS');
   },
   get SafeAreaView() {
     return require('SafeAreaView');
@@ -93,14 +75,8 @@ const ReactNative = {
   get SectionList() {
     return require('SectionList');
   },
-  get SegmentedControlIOS() {
-    return require('SegmentedControlIOS');
-  },
   get Slider() {
     return require('Slider');
-  },
-  get SnapshotViewIOS() {
-    return require('SnapshotViewIOS');
   },
   get Switch() {
     return require('Switch');
@@ -116,9 +92,6 @@ const ReactNative = {
   },
   get SwipeableListView() {
     return require('SwipeableListView');
-  },
-  get TabBarIOS() {
-    return require('TabBarIOS');
   },
   get Text() {
     return require('Text');
@@ -161,14 +134,8 @@ const ReactNative = {
   },
 
   // APIs
-  get ActionSheetIOS() {
-    return require('ActionSheetIOS');
-  },
   get Alert() {
     return require('Alert');
-  },
-  get AlertIOS() {
-    return require('AlertIOS');
   },
   get Animated() {
     return require('Animated');
@@ -212,9 +179,6 @@ const ReactNative = {
   get I18nManager() {
     return require('I18nManager');
   },
-  get ImagePickerIOS() {
-    return require('ImagePickerIOS');
-  },
   get InteractionManager() {
     return require('InteractionManager');
   },
@@ -242,17 +206,11 @@ const ReactNative = {
   get PixelRatio() {
     return require('PixelRatio');
   },
-  get PushNotificationIOS() {
-    return require('PushNotificationIOS');
-  },
   get Settings() {
     return require('Settings');
   },
   get Share() {
     return require('Share');
-  },
-  get StatusBarIOS() {
-    return require('StatusBarIOS');
   },
   get StyleSheet() {
     return require('StyleSheet');
@@ -274,9 +232,6 @@ const ReactNative = {
   },
   get Vibration() {
     return require('Vibration');
-  },
-  get VibrationIOS() {
-    return require('VibrationIOS');
   },
   get YellowBox() {
     return require('YellowBox');

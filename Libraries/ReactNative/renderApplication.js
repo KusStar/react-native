@@ -48,11 +48,8 @@ function renderApplication<Props: Object>(
     renderable = <AsyncMode>{renderable}</AsyncMode>;
   }
 
-  if (fabric) {
-    require('ReactFabric').render(renderable, rootTag);
-  } else {
-    require('ReactNative').render(renderable, rootTag);
-  }
+  
+  require('ReactNative').render(renderable, rootTag);
 }
 
 module.exports = renderApplication;
