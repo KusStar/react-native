@@ -52,31 +52,7 @@ class AppContainer extends React.Component<Props, State> {
   }
 
   componentDidMount(): void {
-    if (__DEV__) {
-      if (!global.__RCTProfileIsProfiling) {
-        this._subscription = RCTDeviceEventEmitter.addListener(
-          'toggleElementInspector',
-          () => {
-            const Inspector = require('Inspector');
-            const inspector = this.state.inspector ? null : (
-              <Inspector
-                inspectedViewTag={ReactNative.findNodeHandle(this._mainRef)}
-                onRequestRerenderApp={updateInspectedViewTag => {
-                  this.setState(
-                    s => ({mainKey: s.mainKey + 1}),
-                    () =>
-                      updateInspectedViewTag(
-                        ReactNative.findNodeHandle(this._mainRef),
-                      ),
-                  );
-                }}
-              />
-            );
-            this.setState({inspector});
-          },
-        );
-      }
-    }
+    // removed Inspector
   }
 
   componentWillUnmount(): void {
