@@ -51,6 +51,9 @@ const ReactNative = {
   get Modal() {
     return require('Modal');
   },
+  get ProgressBarAndroid() {
+    return require('ProgressBarAndroid');
+  },
   get SafeAreaView() {
     return require('SafeAreaView');
   },

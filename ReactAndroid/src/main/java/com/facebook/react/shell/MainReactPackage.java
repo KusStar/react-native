@@ -37,6 +37,7 @@ import com.facebook.react.uimanager.ViewManager;
 import com.facebook.react.views.drawer.ReactDrawerLayoutManager;
 import com.facebook.react.views.image.ReactImageManager;
 import com.facebook.react.views.modal.ReactModalHostManager;
+import com.facebook.react.views.progressbar.ReactProgressBarViewManager;
 import com.facebook.react.views.scroll.ReactHorizontalScrollContainerViewManager;
 import com.facebook.react.views.scroll.ReactHorizontalScrollViewManager;
 import com.facebook.react.views.scroll.ReactScrollViewManager;
@@ -268,6 +269,7 @@ public class MainReactPackage extends LazyReactPackage {
     viewManagers.add(new ReactViewManager());
     viewManagers.add(new ReactViewPagerManager());
     viewManagers.add(new ReactVirtualTextViewManager());
+    viewManagers.add(new ReactProgressBarViewManager());
 
     return viewManagers;
   }
