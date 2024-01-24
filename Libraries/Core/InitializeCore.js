@@ -35,15 +35,6 @@ if (global.window === undefined) {
   global.window = global;
 }
 
-// Set up collections
-const _shouldPolyfillCollection = require('_shouldPolyfillES6Collection');
-if (_shouldPolyfillCollection('Map')) {
-  polyfillGlobal('Map', () => require('Map'));
-}
-if (_shouldPolyfillCollection('Set')) {
-  polyfillGlobal('Set', () => require('Set'));
-}
-
 // Set up process
 global.process = global.process || {};
 global.process.env = global.process.env || {};
@@ -146,7 +137,6 @@ if (navigator === undefined) {
 
 // see https://github.com/facebook/react-native/issues/10881
 polyfillObjectProperty(navigator, 'product', () => 'ReactNative');
-polyfillObjectProperty(navigator, 'geolocation', () => require('Geolocation'));
 
 // Just to make sure the JS gets packaged up. Wait until the JS environment has
 // been initialized before requiring them.
