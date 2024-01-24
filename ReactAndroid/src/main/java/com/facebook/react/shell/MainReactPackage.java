@@ -19,7 +19,6 @@ import com.facebook.react.modules.appstate.AppStateModule;
 import com.facebook.react.modules.blob.BlobModule;
 import com.facebook.react.modules.blob.FileReaderModule;
 import com.facebook.react.modules.clipboard.ClipboardModule;
-import com.facebook.react.modules.datepicker.DatePickerDialogModule;
 import com.facebook.react.modules.dialog.DialogModule;
 import com.facebook.react.modules.fresco.FrescoModule;
 import com.facebook.react.modules.i18nmanager.I18nManagerModule;
@@ -31,22 +30,16 @@ import com.facebook.react.modules.permissions.PermissionsModule;
 import com.facebook.react.modules.share.ShareModule;
 import com.facebook.react.modules.statusbar.StatusBarModule;
 import com.facebook.react.modules.storage.AsyncStorageModule;
-import com.facebook.react.modules.timepicker.TimePickerDialogModule;
 import com.facebook.react.modules.toast.ToastModule;
 import com.facebook.react.modules.vibration.VibrationModule;
 import com.facebook.react.modules.websocket.WebSocketModule;
 import com.facebook.react.uimanager.ViewManager;
-import com.facebook.react.views.checkbox.ReactCheckBoxManager;
 import com.facebook.react.views.drawer.ReactDrawerLayoutManager;
 import com.facebook.react.views.image.ReactImageManager;
 import com.facebook.react.views.modal.ReactModalHostManager;
-import com.facebook.react.views.picker.ReactDialogPickerManager;
-import com.facebook.react.views.picker.ReactDropdownPickerManager;
-import com.facebook.react.views.progressbar.ReactProgressBarViewManager;
 import com.facebook.react.views.scroll.ReactHorizontalScrollContainerViewManager;
 import com.facebook.react.views.scroll.ReactHorizontalScrollViewManager;
 import com.facebook.react.views.scroll.ReactScrollViewManager;
-import com.facebook.react.views.slider.ReactSliderManager;
 import com.facebook.react.views.swiperefresh.SwipeRefreshLayoutManager;
 import com.facebook.react.views.switchview.ReactSwitchManager;
 import com.facebook.react.views.text.ReactRawTextManager;
@@ -139,14 +132,6 @@ public class MainReactPackage extends LazyReactPackage {
               }
             }),
         ModuleSpec.nativeModuleSpec(
-            DatePickerDialogModule.class,
-            new Provider<NativeModule>() {
-              @Override
-              public NativeModule get() {
-                return new DatePickerDialogModule(context);
-              }
-            }),
-        ModuleSpec.nativeModuleSpec(
             DialogModule.class,
             new Provider<NativeModule>() {
               @Override
@@ -236,14 +221,6 @@ public class MainReactPackage extends LazyReactPackage {
               }
             }),
         ModuleSpec.nativeModuleSpec(
-            TimePickerDialogModule.class,
-            new Provider<NativeModule>() {
-              @Override
-              public NativeModule get() {
-                return new TimePickerDialogModule(context);
-              }
-            }),
-        ModuleSpec.nativeModuleSpec(
             ToastModule.class,
             new Provider<NativeModule>() {
               @Override
@@ -273,15 +250,10 @@ public class MainReactPackage extends LazyReactPackage {
   public List<ViewManager> createViewManagers(ReactApplicationContext reactContext) {
     List<ViewManager> viewManagers = new ArrayList<>();
 
-    viewManagers.add(new ReactCheckBoxManager());
-    viewManagers.add(new ReactDialogPickerManager());
     viewManagers.add(new ReactDrawerLayoutManager());
-    viewManagers.add(new ReactDropdownPickerManager());
     viewManagers.add(new ReactHorizontalScrollViewManager());
     viewManagers.add(new ReactHorizontalScrollContainerViewManager());
-    viewManagers.add(new ReactProgressBarViewManager());
     viewManagers.add(new ReactScrollViewManager());
-    viewManagers.add(new ReactSliderManager());
     viewManagers.add(new ReactSwitchManager());
     viewManagers.add(new ReactWebViewManager());
     viewManagers.add(new SwipeRefreshLayoutManager());

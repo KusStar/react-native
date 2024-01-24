@@ -27,9 +27,6 @@ const ReactNative = {
   get Button() {
     return require('Button');
   },
-  get CheckBox() {
-    return require('CheckBox');
-  },
   get DrawerLayoutAndroid() {
     return require('DrawerLayoutAndroid');
   },
@@ -41,12 +38,6 @@ const ReactNative = {
   },
   get ImageBackground() {
     return require('ImageBackground');
-  },
-  get ImageEditor() {
-    return require('ImageEditor');
-  },
-  get ImageStore() {
-    return require('ImageStore');
   },
   get InputAccessoryView() {
     return require('InputAccessoryView');
@@ -60,12 +51,6 @@ const ReactNative = {
   get Modal() {
     return require('Modal');
   },
-  get Picker() {
-    return require('Picker');
-  },
-  get ProgressBarAndroid() {
-    return require('ProgressBarAndroid');
-  },
   get SafeAreaView() {
     return require('SafeAreaView');
   },
@@ -75,9 +60,6 @@ const ReactNative = {
   get SectionList() {
     return require('SectionList');
   },
-  get Slider() {
-    return require('Slider');
-  },
   get Switch() {
     return require('Switch');
   },
@@ -86,12 +68,6 @@ const ReactNative = {
   },
   get StatusBar() {
     return require('StatusBar');
-  },
-  get SwipeableFlatList() {
-    return require('SwipeableFlatList');
-  },
-  get SwipeableListView() {
-    return require('SwipeableListView');
   },
   get Text() {
     return require('Text');
@@ -161,9 +137,6 @@ const ReactNative = {
   get Clipboard() {
     return require('Clipboard');
   },
-  get DatePickerAndroid() {
-    return require('DatePickerAndroid');
-  },
   get DeviceInfo() {
     return require('DeviceInfo');
   },
@@ -217,9 +190,6 @@ const ReactNative = {
   },
   get Systrace() {
     return require('Systrace');
-  },
-  get TimePickerAndroid() {
-    return require('TimePickerAndroid');
   },
   get TVEventHandler() {
     return require('TVEventHandler');
