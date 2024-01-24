@@ -19,7 +19,9 @@ if [ "$MODE" == "ndk" ]; then
   echo "Cleaning ndks build"
   rm -rf ReactAndroid/build/third-party-ndk
   rm -rf ReactAndroid/build/react-ndk
-else
+fi
+
+if [ "$MODE" == "react" ]; then
   echo "Cleaning react-ndk build"
   rm -rf ReactAndroid/build/react-ndk
 fi
