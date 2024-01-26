@@ -72,6 +72,7 @@ if (!global.__fbDisableExceptionsManager) {
 const ReactNativeVersionCheck = require('ReactNativeVersionCheck');
 ReactNativeVersionCheck.checkVersions();
 
+require('./setUpPerformance');
 // Set up Promise
 // The native Promise implementation throws the following error:
 // ERROR: Event loop not supported.

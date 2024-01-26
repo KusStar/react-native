@@ -15,7 +15,9 @@ public class ReactBridge {
     // No locking required here, worst case we'll call into SoLoader twice
     // which will do its own locking internally
     if (!sDidInit) {
+      ReactMarker.logMarker(ReactMarkerConstants.LOAD_REACT_NATIVE_SO_FILE_START);
       SoLoader.loadLibrary("reactnativejni");
+      ReactMarker.logMarker(ReactMarkerConstants.LOAD_REACT_NATIVE_SO_FILE_END);
       sDidInit = true;
     }
   }
