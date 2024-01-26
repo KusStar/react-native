@@ -81,9 +81,6 @@ const ReactNative = {
   get ToastAndroid() {
     return require('ToastAndroid');
   },
-  get ToolbarAndroid() {
-    return require('ToolbarAndroid');
-  },
   get Touchable() {
     return require('Touchable');
   },
@@ -133,9 +130,6 @@ const ReactNative = {
   }, // deprecated: use BackHandler instead
   get BackHandler() {
     return require('BackHandler');
-  },
-  get CameraRoll() {
-    return require('CameraRoll');
   },
   get Clipboard() {
     return require('Clipboard');
