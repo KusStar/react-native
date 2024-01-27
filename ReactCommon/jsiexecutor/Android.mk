@@ -6,23 +6,16 @@ LOCAL_MODULE := jsireact
 
 LOCAL_SRC_FILES := $(wildcard \
 $(LOCAL_PATH)/jsireact/*.cpp \
-$(LOCAL_PATH)/jsireact/quicksqlite/*.cpp \
-$(LOCAL_PATH)/jsireact/quicksqlite/*.c \
-$(LOCAL_PATH)/jsireact/opsqlite/*.cpp \
-$(LOCAL_PATH)/jsireact/opsqlite/*.c \
 )
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_C_INCLUDES)
 
-# https://github.com/OP-Engineering/op-sqlite
-SQLITE3_PERFORMANCE_FLAGS := -DSQLITE_DQS=0 -DSQLITE_THREADSAFE=0 -DSQLITE_DEFAULT_MEMSTATUS=0 -DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1 -DSQLITE_LIKE_DOESNT_MATCH_BLOBS=1 -DSQLITE_MAX_EXPR_DEPTH=0 -DSQLITE_OMIT_DEPRECATED=1 -DSQLITE_OMIT_PROGRESS_CALLBACK=1 -DSQLITE_OMIT_SHARED_CACHE=1 -DSQLITE_USE_ALLOCA=1
-
-LOCAL_CFLAGS := -fexceptions -frtti -O3 ${SQLITE3_PERFORMANCE_FLAGS}
+LOCAL_CFLAGS := -fexceptions -frtti -O3
 
 LOCAL_CXXFLAGS := -std=c++17
 
 LOCAL_STATIC_LIBRARIES := libjsi reactnative
-LOCAL_SHARED_LIBRARIES := libfolly_json glog
+LOCAL_SHARED_LIBRARIES := libfolly_json glog opsqlite
 
 include $(BUILD_STATIC_LIBRARY)
