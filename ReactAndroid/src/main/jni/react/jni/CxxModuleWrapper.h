@@ -7,6 +7,8 @@
 
 #include "CxxModuleWrapperBase.h"
 
+#include <glog/logging.h>
+
 namespace facebook {
 namespace react {
 

@@ -97,6 +97,12 @@ task prepareFolly(dependsOn: dependenciesPath ? [] : [downloadFolly], type: Copy
     }
 
     into "$thirdPartyNdkDir/folly"
+    doLast {
+        ant.patch(
+            patchfile: "src/main/jni/third-party/folly/FileUtil.cpp.patch",
+            originalFile: "$thirdPartyNdkDir/folly/folly/FileUtil.cpp"
+        )
+    }
 }
 
 task downloadGlog(dependsOn: createNativeDepsDirectories, type: Download) {

@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <glog/logging.h>
+
 #include <folly/dynamic.h>
 #include <jsi/jsi.h>
 

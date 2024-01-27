@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <glog/logging.h>
+
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>

@@ -5,11 +5,16 @@
 
 #include "JSBigString.h"
 
+
 #include <fcntl.h>
 #include <sys/stat.h>
 
 #include <folly/Memory.h>
 #include <folly/ScopeGuard.h>
+#include <folly/portability/Fcntl.h>
+#include <folly/portability/SysMman.h>
+#include <folly/portability/SysStat.h>
+#include <folly/portability/Unistd.h>
 
 namespace facebook {
 namespace react {

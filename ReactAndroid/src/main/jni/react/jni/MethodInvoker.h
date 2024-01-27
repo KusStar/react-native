@@ -7,6 +7,8 @@
 
 #include <vector>
 
+#include <glog/logging.h>
+
 #include <cxxreact/JSExecutor.h>
 #include <fb/fbjni.h>
 #include <folly/dynamic.h>
