@@ -1,4 +1,9 @@
-// Copyright 2004-present Facebook. All Rights Reserved.
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 
 #pragma once
 
@@ -18,20 +23,14 @@ class FBJSRuntime;
 namespace facebook {
 namespace jsi {
 
-namespace detail {
-
-template <typename R, typename L>
-class ThreadSafeRuntimeImpl;
-}
-
-class Buffer {
+class JSI_EXPORT Buffer {
  public:
   virtual ~Buffer();
   virtual size_t size() const = 0;
   virtual const uint8_t* data() const = 0;
 };
 
-class StringBuffer : public Buffer {
+class JSI_EXPORT StringBuffer : public Buffer {
  public:
   StringBuffer(std::string s) : s_(std::move(s)) {}
   size_t size() const override {
@@ -45,6 +44,10 @@ class StringBuffer : public Buffer {
   std::string s_;
 };
 
+/// PreparedJavaScript is a base class representing JavaScript which is in a
+/// form optimized for execution, in a runtime-specific way. Construct one via
+/// jsi::Runtime::prepareJavaScript().
+/// ** This is an experimental API that is subject to change. **
 class JSI_EXPORT PreparedJavaScript {
  protected:
   PreparedJavaScript() = default;
@@ -56,6 +59,7 @@ class JSI_EXPORT PreparedJavaScript {
 class Runtime;
 class Pointer;
 class PropNameID;
+class Symbol;
 class String;
 class Object;
 class WeakObject;
@@ -110,11 +114,18 @@ class JSI_EXPORT HostObject {
   virtual void set(Runtime&, const PropNameID& name, const Value& value);
 
   // When JS wants a list of property names for the HostObject, it will
-  // call this method. If it throws an exception, the call will thow a
+  // call this method. If it throws an exception, the call will throw a
   // JS \c Error object. The default implementation returns empty vector.
   virtual std::vector<PropNameID> getPropertyNames(Runtime& rt);
 };
 
+/// Represents a JS runtime.  Movable, but not copyable.  Note that
+/// this object may not be thread-aware, but cannot be used safely from
+/// multiple threads at once.  The application is responsible for
+/// ensuring that it is used safely.  This could mean using the
+/// Runtime from a single thread, using a mutex, doing all work on a
+/// serial queue, etc.  This restriction applies to the methods of
+/// this class, and any method in the API which take a Runtime& as an
 /// argument.  Destructors (all but ~Scope), operators, or other methods
 /// which do not take Runtime& as an argument are safe to call from any
 /// thread, but it is still forbidden to make write operations on a single
@@ -126,25 +137,82 @@ class JSI_EXPORT HostObject {
 /// in a non-Runtime-managed object, and not clean it up before the Runtime
 /// is shut down.  If your lifecycle is such that avoiding this is hard,
 /// you will probably need to do use your own locks.
-class Runtime {
+class JSI_EXPORT Runtime {
  public:
   virtual ~Runtime();
 
   /// Evaluates the given JavaScript \c buffer.  \c sourceURL is used
   /// to annotate the stack trace if there is an exception.  The
-  /// contents may be utf8-encoded JS source code, or binary bytcode
+  /// contents may be utf8-encoded JS source code, or binary bytecode
   /// whose format is specific to the implementation.  If the input
   /// format is unknown, or evaluation causes an error, a JSIException
   /// will be thrown.
-  virtual void evaluateJavaScript(
-      std::unique_ptr<const Buffer> buffer,
+  /// Note this function should ONLY be used when there isn't another means
+  /// through the JSI API. For example, it will be much slower to use this to
+  /// call a global function than using the JSI APIs to read the function
+  /// property from the global object and then calling it explicitly.
+  virtual Value evaluateJavaScript(
+      const std::shared_ptr<const Buffer>& buffer,
       const std::string& sourceURL) = 0;
+
+  /// Prepares to evaluate the given JavaScript \c buffer by processing it into
+  /// a form optimized for execution. This may include pre-parsing, compiling,
+  /// etc. If the input is invalid (for example, cannot be parsed), a
+  /// JSIException will be thrown. The resulting object is tied to the
+  /// particular concrete type of Runtime from which it was created. It may be
+  /// used (via evaluatePreparedJavaScript) in any Runtime of the same concrete
+  /// type.
+  /// The PreparedJavaScript object may be passed to multiple VM instances, so
+  /// they can all share and benefit from the prepared script.
+  /// As with evaluateJavaScript(), using JavaScript code should be avoided
+  /// when the JSI API is sufficient.
+  virtual std::shared_ptr<const PreparedJavaScript> prepareJavaScript(
+      const std::shared_ptr<const Buffer>& buffer,
+      std::string sourceURL) = 0;
+
+  /// Evaluates a PreparedJavaScript. If evaluation causes an error, a
+  /// JSIException will be thrown.
+  /// As with evaluateJavaScript(), using JavaScript code should be avoided
+  /// when the JSI API is sufficient.
+  virtual Value evaluatePreparedJavaScript(
+      const std::shared_ptr<const PreparedJavaScript>& js) = 0;
+
+  /// Drain the JavaScript VM internal Microtask (a.k.a. Job in ECMA262) queue.
+  ///
+  /// \param maxMicrotasksHint a hint to tell an implementation that it should
+  /// make a best effort not execute more than the given number. It's default
+  /// to -1 for infinity (unbounded execution).
+  /// \return true if the queue is drained or false if there is more work to do.
+  ///
+  /// When there were exceptions thrown from the execution of microtasks,
+  /// implementations shall discard the exceptional jobs. An implementation may
+  /// \throw a \c JSError object to signal the hosts to handle. In that case, an
+  /// implementation may or may not suspend the draining.
+  ///
+  /// Hosts may call this function again to resume the draining if it was
+  /// suspended due to either exceptions or the \p maxMicrotasksHint bound.
+  /// E.g. a host may repetitively invoke this function until the queue is
+  /// drained to implement the "microtask checkpint" defined in WHATWG HTML
+  /// event loop: https://html.spec.whatwg.org/C#perform-a-microtask-checkpoint.
+  ///
+  /// Note that error propagation is only a concern if a host needs to implement
+  /// `queueMicrotask`, a recent API that allows enqueueing aribitary functions
+  /// (hence may throw) as microtasks. Exceptions from ECMA-262 Promise Jobs are
+  /// handled internally to VMs and are never propagrated to hosts.
+  ///
+  /// This API offers some queue management to hosts at its best effort due to
+  /// different behaviors and limitations imposed by different VMs and APIs. By
+  /// the time this is written, An implementation may swallow exceptions (JSC),
+  /// may not pause (V8), and may not support bounded executions.
+  virtual bool drainMicrotasks(int maxMicrotasksHint = -1) = 0;
+
   /// \return the global object
   virtual Object global() = 0;
 
-  /// \return a short printable description of the instance.  This
-  /// should only be used by logging, debugging, and other
-  /// developer-facing callers.
+  /// \return a short printable description of the instance.  It should
+  /// at least include some human-readable indication of the runtime
+  /// implementation.  This should only be used by logging, debugging,
+  /// and other developer-facing callers.
   virtual std::string description() = 0;
 
   /// \return whether or not the underlying runtime supports debugging via the
@@ -163,6 +231,7 @@ class Runtime {
  protected:
   friend class Pointer;
   friend class PropNameID;
+  friend class Symbol;
   friend class String;
   friend class Object;
   friend class WeakObject;
@@ -182,9 +251,10 @@ class Runtime {
     virtual void invalidate() = 0;
 
    protected:
-    ~PointerValue() = default;
+    virtual ~PointerValue() = default;
   };
 
+  virtual PointerValue* cloneSymbol(const Runtime::PointerValue* pv) = 0;
   virtual PointerValue* cloneString(const Runtime::PointerValue* pv) = 0;
   virtual PointerValue* cloneObject(const Runtime::PointerValue* pv) = 0;
   virtual PointerValue* clonePropNameID(const Runtime::PointerValue* pv) = 0;
@@ -199,9 +269,15 @@ class Runtime {
   virtual std::string utf8(const PropNameID&) = 0;
   virtual bool compare(const PropNameID&, const PropNameID&) = 0;
 
+  virtual std::string symbolToString(const Symbol&) = 0;
+
   virtual String createStringFromAscii(const char* str, size_t length) = 0;
   virtual String createStringFromUtf8(const uint8_t* utf8, size_t length) = 0;
   virtual std::string utf8(const String&) = 0;
+
+  // \return a \c Value created from a utf8-encoded JSON string. The default
+  // implementation creates a \c String and invokes JSON.parse.
+  virtual Value createValueFromJsonUtf8(const uint8_t* json, size_t length);
 
   virtual Object createObject() = 0;
   virtual Object createObject(std::shared_ptr<HostObject> ho) = 0;
@@ -225,7 +301,7 @@ class Runtime {
   virtual Array getPropertyNames(const Object&) = 0;
 
   virtual WeakObject createWeakObject(const Object&) = 0;
-  virtual Value lockWeakObject(const WeakObject&) = 0;
+  virtual Value lockWeakObject(WeakObject&) = 0;
 
   virtual Array createArray(size_t length) = 0;
   virtual size_t size(const Array&) = 0;
@@ -251,27 +327,27 @@ class Runtime {
   virtual ScopeState* pushScope();
   virtual void popScope(ScopeState*);
 
+  virtual bool strictEquals(const Symbol& a, const Symbol& b) const = 0;
   virtual bool strictEquals(const String& a, const String& b) const = 0;
   virtual bool strictEquals(const Object& a, const Object& b) const = 0;
 
   virtual bool instanceOf(const Object& o, const Function& f) = 0;
 
   // These exist so derived classes can access the private parts of
-  // Value, String, and Object, which are all friends of Runtime.
+  // Value, Symbol, String, and Object, which are all friends of Runtime.
   template <typename T>
   static T make(PointerValue* pv);
+  static PointerValue* getPointerValue(Pointer& pointer);
   static const PointerValue* getPointerValue(const Pointer& pointer);
   static const PointerValue* getPointerValue(const Value& value);
 
-  // TODO T25594389: think harder about this friend declaration (and
-  // it's forward decl above)
-  template <typename R, typename L>
-  friend class detail::ThreadSafeRuntimeImpl;
   friend class ::FBJSRuntime;
+  template <typename Plain, typename Base>
+  friend class RuntimeDecorator;
 };
 
 // Base class for pointer-storing types.
-class Pointer {
+class JSI_EXPORT Pointer {
  protected:
   explicit Pointer(Pointer&& other) : ptr_(other.ptr_) {
     other.ptr_ = nullptr;
@@ -294,12 +370,12 @@ class Pointer {
 };
 
 /// Represents something that can be a JS property key.  Movable, not copyable.
-class PropNameID : public Pointer {
+class JSI_EXPORT PropNameID : public Pointer {
  public:
   using Pointer::Pointer;
 
   PropNameID(Runtime& runtime, const PropNameID& other)
-      : PropNameID(runtime.clonePropNameID(other.ptr_)) {}
+      : Pointer(runtime.clonePropNameID(other.ptr_)) {}
 
   PropNameID(PropNameID&& other) = default;
   PropNameID& operator=(PropNameID&& other) = default;
@@ -363,8 +439,35 @@ class PropNameID : public Pointer {
   friend class Value;
 };
 
+/// Represents a JS Symbol (es6).  Movable, not copyable.
+/// TODO T40778724: this is a limited implementation sufficient for
+/// the debugger not to crash when a Symbol is a property in an Object
+/// or element in an array.  Complete support for creating will come
+/// later.
+class JSI_EXPORT Symbol : public Pointer {
+ public:
+  using Pointer::Pointer;
+
+  Symbol(Symbol&& other) = default;
+  Symbol& operator=(Symbol&& other) = default;
+
+  /// \return whether a and b refer to the same symbol.
+  static bool strictEquals(Runtime& runtime, const Symbol& a, const Symbol& b) {
+    return runtime.strictEquals(a, b);
+  }
+
+  /// Converts a Symbol into a C++ string as JS .toString would.  The output
+  /// will look like \c Symbol(description) .
+  std::string toString(Runtime& runtime) const {
+    return runtime.symbolToString(*this);
+  }
+
+  friend class Runtime;
+  friend class Value;
+};
+
 /// Represents a JS String.  Movable, not copyable.
-class String : public Pointer {
+class JSI_EXPORT String : public Pointer {
  public:
   using Pointer::Pointer;
 
@@ -422,7 +525,7 @@ class Array;
 class Function;
 
 /// Represents a JS Object.  Movable, not copyable.
-class Object : public Pointer {
+class JSI_EXPORT Object : public Pointer {
  public:
   using Pointer::Pointer;
 
@@ -610,7 +713,7 @@ class Object : public Pointer {
 /// Represents a weak reference to a JS Object.  If the only reference
 /// to an Object are these, the object is eligible for GC.  Method
 /// names are inspired by C++ weak_ptr.  Movable, not copyable.
-class WeakObject : public Pointer {
+class JSI_EXPORT WeakObject : public Pointer {
  public:
   using Pointer::Pointer;
 
@@ -632,7 +735,7 @@ class WeakObject : public Pointer {
 
 /// Represents a JS Object which can be efficiently used as an array
 /// with integral indices.
-class Array : public Object {
+class JSI_EXPORT Array : public Object {
  public:
   Array(Array&&) = default;
   /// Creates a new Array instance, with \c length undefined elements.
@@ -670,7 +773,7 @@ class Array : public Object {
   template <typename... Args>
   static Array createWithElements(Runtime&, Args&&... args);
 
-  /// Creates a new Array instance from intitializer list.
+  /// Creates a new Array instance from initializer list.
   static Array createWithElements(
       Runtime& runtime,
       std::initializer_list<Value> elements);
@@ -687,7 +790,7 @@ class Array : public Object {
 };
 
 /// Represents a JSArrayBuffer
-class ArrayBuffer : public Object {
+class JSI_EXPORT ArrayBuffer : public Object {
  public:
   ArrayBuffer(ArrayBuffer&&) = default;
   ArrayBuffer& operator=(ArrayBuffer&&) = default;
@@ -714,7 +817,7 @@ class ArrayBuffer : public Object {
 };
 
 /// Represents a JS Object which is guaranteed to be Callable.
-class Function : public Object {
+class JSI_EXPORT Function : public Object {
  public:
   Function(Function&&) = default;
   Function& operator=(Function&&) = default;
@@ -731,23 +834,35 @@ class Function : public Object {
       unsigned int paramCount,
       jsi::HostFunctionType func);
 
-  /// Calls the function with \c count \c args.  The \c this value of
-  /// the JS function will be undefined.
+  /// Calls the function with \c count \c args.  The \c this value of the JS
+  /// function will not be set by the C++ caller, similar to calling
+  /// Function.prototype.apply(undefined, args) in JS.
+  /// \b Note: as with Function.prototype.apply, \c this may not always be
+  /// \c undefined in the function itself.  If the function is non-strict,
+  /// \c this will be set to the global object.
   Value call(Runtime& runtime, const Value* args, size_t count) const;
 
   /// Calls the function with a \c std::initializer_list of Value
-  /// arguments. The \c this value of the JS function will be
-  /// undefined.
+  /// arguments.  The \c this value of the JS function will not be set by the
+  /// C++ caller, similar to calling Function.prototype.apply(undefined, args)
+  /// in JS.
+  /// \b Note: as with Function.prototype.apply, \c this may not always be
+  /// \c undefined in the function itself.  If the function is non-strict,
+  /// \c this will be set to the global object.
   Value call(Runtime& runtime, std::initializer_list<Value> args) const;
 
   /// Calls the function with any number of arguments similarly to
-  /// Object::setProperty().  The \c this value of the JS function
-  /// will be undefined.
+  /// Object::setProperty().  The \c this value of the JS function will not be
+  /// set by the C++ caller, similar to calling
+  /// Function.prototype.call(undefined, ...args) in JS.
+  /// \b Note: as with Function.prototype.call, \c this may not always be
+  /// \c undefined in the function itself.  If the function is non-strict,
+  /// \c this will be set to the global object.
   template <typename... Args>
   Value call(Runtime& runtime, Args&&... args) const;
 
   /// Calls the function with \c count \c args and \c jsThis value passed
-  /// as this value.
+  /// as the \c this value.
   Value callWithThis(
       Runtime& Runtime,
       const Object& jsThis,
@@ -755,16 +870,14 @@ class Function : public Object {
       size_t count) const;
 
   /// Calls the function with a \c std::initializer_list of Value
-  /// arguments. The \c this value of the JS function will be
-  /// undefined.
+  /// arguments and \c jsThis passed as the \c this value.
   Value callWithThis(
       Runtime& runtime,
       const Object& jsThis,
       std::initializer_list<Value> args) const;
 
   /// Calls the function with any number of arguments similarly to
-  /// Object::setProperty().  The \c this value of the JS function
-  /// will be undefined.
+  /// Object::setProperty(), and with \c jsThis passed as the \c this value.
   template <typename... Args>
   Value callWithThis(Runtime& runtime, const Object& jsThis, Args&&... args)
       const;
@@ -811,9 +924,10 @@ class Function : public Object {
   Function(Runtime::PointerValue* value) : Object(value) {}
 };
 
-/// Represents any JS Value (undefined, null, boolean, number, string,
-/// or object).  Movable, or explicitly copyable (has no copy ctor).
-class Value {
+/// Represents any JS Value (undefined, null, boolean, number, symbol,
+/// string, or object).  Movable, or explicitly copyable (has no copy
+/// ctor).
+class JSI_EXPORT Value {
  public:
   /// Default ctor creates an \c undefined JS value.
   Value() : Value(UndefinedKind) {}
@@ -836,12 +950,14 @@ class Value {
     data_.number = i;
   }
 
-  /// Moves a String or Object rvalue into a new JS value.
+  /// Moves a Symbol, String, or Object rvalue into a new JS value.
   template <typename T>
   /* implicit */ Value(T&& other) : Value(kindOf(other)) {
     static_assert(
-        std::is_base_of<String, T>::value || std::is_base_of<Object, T>::value,
-        "Value cannot be implictly move-constructed from this type");
+        std::is_base_of<Symbol, T>::value ||
+            std::is_base_of<String, T>::value ||
+            std::is_base_of<Object, T>::value,
+        "Value cannot be implicitly move-constructed from this type");
     new (&data_.pointer) T(std::move(other));
   }
 
@@ -855,6 +971,11 @@ class Value {
   }
 
   Value(Value&& value);
+
+  /// Copies a Symbol lvalue into a new JS value.
+  Value(Runtime& runtime, const Symbol& sym) : Value(SymbolKind) {
+    new (&data_.pointer) String(runtime.cloneSymbol(sym.ptr_));
+  }
 
   /// Copies a String lvalue into a new JS value.
   Value(Runtime& runtime, const String& str) : Value(StringKind) {
@@ -891,10 +1012,12 @@ class Value {
 
   // \return a \c Value created from a utf8-encoded JSON string.
   static Value
-  createFromJsonUtf8(Runtime& runtime, const uint8_t* json, size_t length);
+  createFromJsonUtf8(Runtime& runtime, const uint8_t* json, size_t length) {
+    return runtime.createValueFromJsonUtf8(json, length);
+  }
 
-  /// \return according to the SameValue algorithm see more here:
-  //  https://www.ecma-international.org/ecma-262/5.1/#sec-11.9.4
+  /// \return according to the Strict Equality Comparison algorithm, see:
+  /// https://262.ecma-international.org/11.0/#sec-strict-equality-comparison
   static bool strictEquals(Runtime& runtime, const Value& a, const Value& b);
 
   Value& operator=(Value&& other) {
@@ -923,6 +1046,10 @@ class Value {
     return kind_ == StringKind;
   }
 
+  bool isSymbol() const {
+    return kind_ == SymbolKind;
+  }
+
   bool isObject() const {
     return kind_ == ObjectKind;
   }
@@ -933,8 +1060,6 @@ class Value {
     return data_.boolean;
   }
 
-  bool asBool() const;
-
   /// \return the number value, or asserts if not a number.
   double getNumber() const {
     assert(isNumber());
@@ -944,6 +1069,26 @@ class Value {
   /// \return the number value, or throws JSIException if not a
   /// number.
   double asNumber() const;
+
+  /// \return the Symbol value, or asserts if not a symbol.
+  Symbol getSymbol(Runtime& runtime) const& {
+    assert(isSymbol());
+    return Symbol(runtime.cloneSymbol(data_.pointer.ptr_));
+  }
+
+  /// \return the Symbol value, or asserts if not a symbol.
+  /// Can be used on rvalue references to avoid cloning more symbols.
+  Symbol getSymbol(Runtime&) && {
+    assert(isSymbol());
+    auto ptr = data_.pointer.ptr_;
+    data_.pointer.ptr_ = nullptr;
+    return static_cast<Symbol>(ptr);
+  }
+
+  /// \return the Symbol value, or throws JSIException if not a
+  /// symbol
+  Symbol asSymbol(Runtime& runtime) const&;
+  Symbol asSymbol(Runtime& runtime) &&;
 
   /// \return the String value, or asserts if not a string.
   String getString(Runtime& runtime) const& {
@@ -960,6 +1105,8 @@ class Value {
     return static_cast<String>(ptr);
   }
 
+  /// \return the String value, or throws JSIException if not a
+  /// string.
   String asString(Runtime& runtime) const&;
   String asString(Runtime& runtime) &&;
 
@@ -994,9 +1141,10 @@ class Value {
     NullKind,
     BooleanKind,
     NumberKind,
+    SymbolKind,
     StringKind,
     ObjectKind,
-    PointerKind = StringKind,
+    PointerKind = SymbolKind,
   };
 
   union Data {
@@ -1012,11 +1160,14 @@ class Value {
     bool boolean;
     double number;
     // pointers
-    Pointer pointer; // String, Object, Array, Function
+    Pointer pointer; // Symbol, String, Object, Array, Function
   };
 
   Value(ValueKind kind) : kind_(kind) {}
 
+  constexpr static ValueKind kindOf(const Symbol&) {
+    return SymbolKind;
+  }
   constexpr static ValueKind kindOf(const String&) {
     return StringKind;
   }
@@ -1027,13 +1178,7 @@ class Value {
   ValueKind kind_;
   Data data_;
 
-  // In the future: Value becomes NaN-boxed.  In the Hermes impl, if
-  // the object contains a PinnedHermesValue, we need to be able to
-  // get a pointer to it; this can be casted from 'this'.  In the JSC
-  // impl, we need to be able to convert the boxed value into a JSC
-  // ref.  This can be done by casting this, deferencing it to get a
-  // number, doing some bit masks, and then casting again into the
-  // desired JSC ref type.
+  // In the future: Value becomes NaN-boxed. See T40538354.
 };
 
 /// Not movable and not copyable RAII marker advising the underlying
@@ -1054,7 +1199,7 @@ class Value {
 /// Instances of this class are intended to be created as automatic stack
 /// variables in which case destructor calls don't require any additional
 /// locking, provided that the lock (if any) is managed with RAII helpers.
-class Scope {
+class JSI_EXPORT Scope {
  public:
   explicit Scope(Runtime& rt) : rt_(rt), prv_(rt.pushScope()) {}
   ~Scope() {
@@ -1079,7 +1224,7 @@ class Scope {
 };
 
 /// Base class for jsi exceptions
-class JSIException : public std::exception {
+class JSI_EXPORT JSIException : public std::exception {
  protected:
   JSIException(){};
   JSIException(std::string what) : what_(std::move(what)){};
@@ -1089,21 +1234,25 @@ class JSIException : public std::exception {
     return what_.c_str();
   }
 
+  virtual ~JSIException();
+
  protected:
   std::string what_;
 };
 
 /// This exception will be thrown by API functions on errors not related to
 /// JavaScript execution.
-class JSINativeException : public JSIException {
+class JSI_EXPORT JSINativeException : public JSIException {
  public:
   JSINativeException(std::string what) : JSIException(std::move(what)) {}
+
+  virtual ~JSINativeException();
 };
 
 /// This exception will be thrown by API functions whenever a JS
 /// operation causes an exception as described by the spec, or as
 /// otherwise described.
-class JSError : public JSIException {
+class JSI_EXPORT JSError : public JSIException {
  public:
   /// Creates a JSError referring to provided \c value
   JSError(Runtime& r, Value&& value);
@@ -1125,6 +1274,8 @@ class JSError : public JSIException {
   /// set to provided message.  This argument order is a bit weird,
   /// but necessary to avoid ambiguity with the above.
   JSError(std::string what, Runtime& rt, Value&& value);
+
+  virtual ~JSError();
 
   const std::string& getStack() const {
     return stack_;
