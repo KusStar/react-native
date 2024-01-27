@@ -56,9 +56,11 @@ $(call import-module,jsi)
 $(call import-module,jsiexecutor)
 $(call import-module,callinvoker)
 $(call import-module,opsqlite)
+$(call import-module,quickjs)
 
 # TODO(ramanpreet):
 #   Why doesn't this import-module call generate a jscexecutor.so file?
 # $(call import-module,jscexecutor)
 
 include $(REACT_SRC_DIR)/jscexecutor/Android.mk
+include $(REACT_SRC_DIR)/quickjsexecutor/Android.mk
