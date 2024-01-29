@@ -17,6 +17,7 @@ import com.facebook.react.bridge.JavaScriptExecutorFactory;
 import com.facebook.react.bridge.WritableNativeMap;
 
 public class QuickJSExecutorFactory implements JavaScriptExecutorFactory {
+  // eg. getApplication().getCacheDir().getAbsolutePath() + "/qjs"
   private String mCodeCacheDir;
   // internal default is 256 * 1024, 0 means no limit
   private int mMaxStackSize = -1;
