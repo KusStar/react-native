@@ -7288,6 +7288,7 @@ JSValue JS_GetPropertyInternal(JSContext *ctx, JSValueConst obj,
         p = JS_VALUE_GET_OBJ(obj);
     }
 
+    // TODO: remove interceptor, use class exotic instead, JSClass JSClassExoticMethods
     JSInterceptor *interceptor = get_interceptor(p);
     if (interceptor && interceptor->getter) {
         JSValue name = JS_AtomToValue(ctx, prop);
@@ -7368,7 +7369,7 @@ JSValue JS_GetPropertyInternal(JSContext *ctx, JSValueConst obj,
                         JSValue obj1;
 
                         /* Note: if 'p' is a prototype, it can be
-                           freed in the called function */
+                           freed in the called function */x
                         obj1 = JS_DupValue(ctx, JS_MKPTR(JS_TAG_OBJECT, p));
                         ret = em->get_own_property(ctx, &desc, obj1, prop);
                         JS_FreeValue(ctx, obj1);
