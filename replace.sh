@@ -30,12 +30,42 @@ function replace_libraries() {
   cp -r ./Libraries $REWIND_MODULES_RN_LIBRARIES
 }
 
+function replace_gradle() {
+  REWIND_REACT_GRADLE=$REWIND_DIR/node_modules/react-native/react.gradle
+
+  echo "Removing $REWIND_REACT_GRADLE"
+
+  rm $REWIND_REACT_GRADLE
+
+  echo "Copying ./react.gradle to $REWIND_REACT_GRADLE"
+
+  cp ./react.gradle $REWIND_REACT_GRADLE
+}
+
+function replace_hermesc() {
+  REWIND_HERMESC=$REWIND_DIR/node_modules/react-native/hermesc
+
+  echo "Removing $REWIND_HERMESC"
+
+  rm $REWIND_HERMESC
+
+  echo "Copying ./hermesc to $REWIND_HERMESC"
+
+  cp -r ./hermesc $REWIND_HERMESC
+}
+
 if [ "$1" == "android" ]; then
   replace_android
 elif [ "$1" == "libraris" ]; then
   replace_libraries
+elif [ "$1" == "gradle" ]; then
+  replace_gradle
 else
   replace_android
   echo "\n"
   replace_libraries
+  echo "\n"
+  replace_gradle
+  echo "\n"
+  replace_hermesc
 fi

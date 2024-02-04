@@ -122,7 +122,8 @@
     "ReactAndroid",
     "ReactCommon",
     "README.md",
-    "third-party-podspecs"
+    "third-party-podspecs",
+    "hermesc"
   ],
   "scripts": {
     "test": "jest",
