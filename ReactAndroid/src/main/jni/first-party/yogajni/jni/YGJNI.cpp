@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#include <fb/fbjni.h>
+#include <fbjni/fbjni.h>
 #include <yoga/YGNode.h>
 #include <yoga/Yoga.h>
 #include <iostream>

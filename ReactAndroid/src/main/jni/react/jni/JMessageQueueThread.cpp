@@ -11,7 +11,7 @@
 #include <mutex>
 
 #include <fb/log.h>
-#include <fb/fbjni.h>
+#include <fbjni/fbjni.h>
 #include <jsi/jsi.h>
 
 #include "JNativeRunnable.h"

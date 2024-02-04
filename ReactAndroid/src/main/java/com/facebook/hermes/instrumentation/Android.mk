@@ -15,7 +15,7 @@ LOCAL_SRC_FILES := $(wildcard $(LOCAL_PATH)/*.cpp)
 LOCAL_CPP_FEATURES := exceptions
 
 LOCAL_STATIC_LIBRARIES := libjsireact libjsi
-LOCAL_SHARED_LIBRARIES := libfolly_json libfb libreactnativejni libhermes
+LOCAL_SHARED_LIBRARIES := libfolly_json libfb libfbjni libreactnativejni libhermes
 
 include $(BUILD_SHARED_LIBRARY)
 

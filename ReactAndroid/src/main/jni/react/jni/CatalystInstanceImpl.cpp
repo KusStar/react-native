@@ -21,7 +21,7 @@
 #include <cxxreact/RecoverableError.h>
 #include <cxxreact/RAMBundleRegistry.h>
 #include <fb/log.h>
-#include <fb/fbjni/ByteBuffer.h>
+#include <fbjni/ByteBuffer.h>
 #include <folly/dynamic.h>
 #include <folly/Memory.h>
 

@@ -6,7 +6,7 @@
 #include <string>
 
 #include "CallInvokerHolder.h"
-#include <fb/fbjni.h>
+#include <fbjni/fbjni.h>
 #include <folly/Memory.h>
 
 #include "CxxModuleWrapper.h"

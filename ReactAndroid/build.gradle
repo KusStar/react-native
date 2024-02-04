@@ -184,7 +184,7 @@ task downloadHermes(dependsOn: createNativeDepsDirectories, type: Download) {
 task prepareHermes(dependsOn: downloadHermes) {
     doLast {
         def hermesTar = tarTree(downloadHermes.dest)
-        def hermesAAR = hermesTar.matching({ it.include "**/android/hermes-debug.aar" }).singleFile
+        def hermesAAR = hermesTar.matching({ it.include "**/android/hermes-release.aar" }).singleFile
         def soFiles = zipTree(hermesAAR).matching({ it.include "**/*.so" })
         def headerFiles = hermesTar.matching({ it.include "**/android/include/**/*.h" })
 
@@ -212,6 +212,34 @@ task downloadNdkBuildDependencies {
     dependsOn downloadFolly
     dependsOn downloadGlog
     dependsOn downloadJSC
+}
+
+task extractAARHeaders {
+    doLast {
+        configurations.extractHeaders.files.each {
+            def file = it.absoluteFile
+            def packageName = file.name.tokenize('-')[0]
+            copy {
+                from zipTree(file)
+                into "$projectDir/src/main/jni/first-party/$packageName/headers"
+                include "**/*.h"
+            }
+        }
+    }
+}
+
+task extractJNIFiles {
+    doLast {
+        configurations.extractJNI.files.each {
+            def file = it.absoluteFile
+            def packageName = file.name.tokenize('-')[0]
+            copy {
+                from zipTree(file)
+                into "$projectDir/src/main/jni/first-party/$packageName/"
+                include "jni/**/*"
+            }
+        }
+    }
 }
 
 def getNdkBuildName() {
@@ -265,7 +293,7 @@ def getNdkBuildFullPath() {
     return ndkBuildFullPath
 }
 
-task buildReactNdkLib(dependsOn: [prepareJSC, prepareHermes, prepareBoost, prepareDoubleConversion, prepareFolly, prepareGlog], type: Exec) {
+task buildReactNdkLib(dependsOn: [prepareJSC, prepareHermes, prepareBoost, prepareDoubleConversion, prepareFolly, prepareGlog, extractAARHeaders, extractJNIFiles], type: Exec) {
     inputs.dir('src/main/jni/react')
     outputs.dir("$buildDir/react-ndk/all")
     commandLine getNdkBuildFullPath(),
@@ -351,6 +379,11 @@ android {
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/LICENSE'
     }
+
+    configurations {
+        extractHeaders
+        extractJNI
+    }
 }
 
 dependencies {
@@ -366,6 +399,9 @@ dependencies {
     api "com.squareup.okhttp3:okhttp:${OKHTTP_VERSION}"
     api "com.squareup.okhttp3:okhttp-urlconnection:${OKHTTP_VERSION}"
     api 'com.squareup.okio:okio:2.9.0'
+    // api("com.facebook.fbjni:fbjni-java-only:0.2.2")
+    extractHeaders("com.facebook.fbjni:fbjni:0.2.2:headers")
+    extractJNI("com.facebook.fbjni:fbjni:0.2.2")
 }
 
 apply from: 'release.gradle'

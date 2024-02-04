@@ -1,6 +1,6 @@
 // Copyright 2004-present Facebook. All Rights Reserved.
 
-#include <fb/fbjni.h>
+#include <fbjni/fbjni.h>
 #include <folly/Memory.h>
 #include <jsi/JSCRuntime.h>
 #include <jsireact/JSIExecutor.h>

@@ -7,7 +7,7 @@
 
 #include <cxxreact/CxxModule.h>
 #include <cxxreact/ModuleRegistry.h>
-#include <fb/fbjni.h>
+#include <fbjni/fbjni.h>
 
 #include "CxxModuleWrapper.h"
 #include "JavaModuleWrapper.h"

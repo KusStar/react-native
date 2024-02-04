@@ -6,7 +6,7 @@
  */
 
 #include "FabricJSCBinding.h"
-#include <fb/fbjni.h>
+#include <fbjni/fbjni.h>
 #include <jschelpers/JavaScriptCore.h>
 #include <jschelpers/Unicode.h>
 

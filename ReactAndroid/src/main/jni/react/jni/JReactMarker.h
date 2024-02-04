@@ -6,7 +6,7 @@
 #pragma once
 
 #include <string>
-#include <fb/fbjni.h>
+#include <fbjni/fbjni.h>
 
 #include <cxxreact/ReactMarker.h>
 

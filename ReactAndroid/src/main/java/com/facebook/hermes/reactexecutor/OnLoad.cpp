@@ -8,7 +8,7 @@
 #include <../instrumentation/HermesMemoryDumper.h>
 #include <HermesExecutorFactory.h>
 #include <android/log.h>
-#include <fb/fbjni.h>
+#include <fbjni/fbjni.h>
 #include <glog/logging.h>
 #include <hermes/Public/GCConfig.h>
 #include <hermes/Public/RuntimeConfig.h>

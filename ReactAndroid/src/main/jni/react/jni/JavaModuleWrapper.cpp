@@ -5,7 +5,7 @@
 
 #include "JavaModuleWrapper.h"
 
-#include <fb/fbjni.h>
+#include <fbjni/fbjni.h>
 #include <folly/json.h>
 #include <cxxreact/CxxModule.h>
 #include <cxxreact/CxxNativeModule.h>

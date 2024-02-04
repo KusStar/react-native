@@ -13,7 +13,7 @@ LOCAL_CFLAGS += -fvisibility=hidden -fexceptions -frtti -O3
 
 LOCAL_LDLIBS += -landroid -llog
 LOCAL_STATIC_LIBRARIES := libyogacore
-LOCAL_SHARED_LIBRARIES := libfb
+LOCAL_SHARED_LIBRARIES := libfb libfbjni
 
 include $(BUILD_SHARED_LIBRARY)
 
