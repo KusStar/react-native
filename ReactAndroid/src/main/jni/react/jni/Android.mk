@@ -49,6 +49,7 @@ include $(BUILD_SHARED_LIBRARY)
 $(call import-module,folly)
 $(call import-module,fb)
 $(call import-module,jsc)
+$(call import-module,hermes)
 $(call import-module,fbgloginit)
 $(call import-module,yogajni)
 $(call import-module,cxxreact)
@@ -56,9 +57,11 @@ $(call import-module,jsi)
 $(call import-module,jsiexecutor)
 $(call import-module,callinvoker)
 $(call import-module,opsqlite)
+$(call import-module,hermes/executor)
 
 # TODO(ramanpreet):
 #   Why doesn't this import-module call generate a jscexecutor.so file?
 # $(call import-module,jscexecutor)
 
 include $(REACT_SRC_DIR)/jscexecutor/Android.mk
+include $(REACT_SRC_DIR)/../hermes/reactexecutor/Android.mk

@@ -174,6 +174,36 @@ task prepareJSC(dependsOn: downloadJSC) {
     
 }
 
+task downloadHermes(dependsOn: createNativeDepsDirectories, type: Download) {
+    src "https://registry.npmjs.org/hermes-engine/-/hermes-engine-${HERMES_VERSION}.tgz"
+    onlyIfNewer true
+    overwrite false
+    dest new File(downloadsDir, "hermes-${HERMES_VERSION}.tar.gz")
+}
+
+task prepareHermes(dependsOn: downloadHermes) {
+    doLast {
+        def hermesTar = tarTree(downloadHermes.dest)
+        def hermesAAR = hermesTar.matching({ it.include "**/android/hermes-debug.aar" }).singleFile
+        def soFiles = zipTree(hermesAAR).matching({ it.include "**/*.so" })
+        def headerFiles = hermesTar.matching({ it.include "**/android/include/**/*.h" })
+
+        copy {
+            from soFiles
+            from "src/main/jni/first-party/hermes/Android.mk"
+            from headerFiles
+
+            filesMatching("**/hermes/*.h", { it.path = "hermes/${it.name}" })
+            filesMatching("**/Public/*.h", { it.path = "hermes/Public/${it.name}" })
+            filesMatching("**/jsi/*.h", { it.path = "hermes/jsi/${it.name}" })
+
+            includeEmptyDirs false
+            into "$thirdPartyNdkDir/hermes"
+        }
+    }
+    
+}
+
 task downloadNdkBuildDependencies {
     if (!boostPath) {
         dependsOn downloadBoost
@@ -235,7 +265,7 @@ def getNdkBuildFullPath() {
     return ndkBuildFullPath
 }
 
-task buildReactNdkLib(dependsOn: [prepareJSC, prepareBoost, prepareDoubleConversion, prepareFolly, prepareGlog], type: Exec) {
+task buildReactNdkLib(dependsOn: [prepareJSC, prepareHermes, prepareBoost, prepareDoubleConversion, prepareFolly, prepareGlog], type: Exec) {
     inputs.dir('src/main/jni/react')
     outputs.dir("$buildDir/react-ndk/all")
     commandLine getNdkBuildFullPath(),

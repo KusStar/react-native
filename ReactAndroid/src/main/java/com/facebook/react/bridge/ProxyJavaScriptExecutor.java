@@ -30,6 +30,18 @@ public class ProxyJavaScriptExecutor extends JavaScriptExecutor {
     }
 
     @Override
+    public void startSamplingProfiler() {
+      throw new UnsupportedOperationException(
+          "Starting sampling profiler not supported on " + toString());
+    }
+
+    @Override
+    public void stopSamplingProfiler(String filename) {
+      throw new UnsupportedOperationException(
+          "Stopping sampling profiler not supported on " + toString());
+    }
+
+    @Override
     public JavaScriptExecutor create() throws Exception {
       return new ProxyJavaScriptExecutor(mJavaJSExecutorFactory.create());
     }
