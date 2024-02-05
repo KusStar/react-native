@@ -13,10 +13,9 @@ LOCAL_SRC_FILES := $(wildcard $(LOCAL_PATH)/*.cpp)
 LOCAL_C_INCLUDES := $(LOCAL_PATH)
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)
 
-LOCAL_STATIC_LIBRARIES := libjsi libjsireact
-LOCAL_SHARED_LIBRARIES := libhermes
+LOCAL_SHARED_LIBRARIES := libhermes libjsi libjsireact
 
-include $(BUILD_SHARED_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 
@@ -28,7 +27,6 @@ LOCAL_SRC_FILES := $(wildcard $(LOCAL_PATH)/*.cpp)
 LOCAL_C_INCLUDES := $(LOCAL_PATH)
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)
 
-LOCAL_STATIC_LIBRARIES := libjsi libjsireact
-LOCAL_SHARED_LIBRARIES := libhermes
+LOCAL_SHARED_LIBRARIES := libhermes libjsi libjsireact
 
-include $(BUILD_SHARED_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)
