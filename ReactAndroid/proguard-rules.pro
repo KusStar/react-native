@@ -59,6 +59,9 @@
 -keep interface okhttp3.** { *; }
 -dontwarn okhttp3.**
 
+# hermes
+-keep class com.facebook.jni.** { *; }
+
 # okio
 
 -keep class sun.misc.Unsafe { *; }
