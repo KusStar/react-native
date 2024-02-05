@@ -10,14 +10,14 @@
 
 'use strict';
 
-import type {ExtendedError} from 'parseErrorStack';
+import type { ExtendedError } from 'parseErrorStack';
 
 /**
  * Handles the developer-visible aspect of errors and exceptions
  */
 let exceptionID = 0;
 function reportException(e: ExtendedError, isFatal: boolean) {
-  const {ExceptionsManager} = require('NativeModules');
+  const { ExceptionsManager } = require('NativeModules');
   if (ExceptionsManager) {
     const parseErrorStack = require('parseErrorStack');
     const stack = parseErrorStack(e);
@@ -35,7 +35,7 @@ function reportException(e: ExtendedError, isFatal: boolean) {
         currentExceptionID,
       );
     }
-    if (__DEV__) {
+    if (__DEV__ || global._isDebug) {
       const symbolicateStackTrace = require('symbolicateStackTrace');
       symbolicateStackTrace(stack)
         .then(prettyStack => {
@@ -45,6 +45,18 @@ function reportException(e: ExtendedError, isFatal: boolean) {
               prettyStack,
               currentExceptionID,
             );
+            const stackLines = prettyStack
+              .map(stack => {
+                const file = stack.file || '';
+                const lineNumber = stack.lineNumber || '';
+                const column = stack.column || '';
+                const sep1 = file && lineNumber ? ':' : ''
+                const sep2 = lineNumber && column ? ':' : ''
+                const extra = `${file}${sep1}${lineNumber}${sep2}${column}`
+                return `at ${stack.methodName} ${extra ? ' (' + extra + ')' : ''}`
+              })
+              .join('\n\t')
+            console.error(e.message, '\n\t' + stackLines)
           } else {
             throw new Error('The stack is null');
           }
@@ -122,4 +134,4 @@ function installConsoleErrorReporter() {
   }
 }
 
-module.exports = {handleException, installConsoleErrorReporter};
+module.exports = { handleException, installConsoleErrorReporter };
