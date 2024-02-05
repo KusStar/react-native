@@ -1,6 +1,6 @@
 {
   "name": "@kuss/react-native",
-  "version": "0.56.1-rc.33",
+  "version": "0.56.2-rc.1",
   "publishConfig": {
     "access": "public"
   },
@@ -143,7 +143,8 @@
     "test-android-unit": "yarn run docker-build-android && yarn run test-android-run-unit",
     "test-android-e2e": "yarn run docker-build-android && yarn run test-android-run-e2e",
     "bundle-android": "./gradlew :ReactAndroid:installArchives --no-daemon",
-    "clean-android": "./gradlew :ReactAndroid:clean --no-daemon"
+    "clean-android": "./gradlew :ReactAndroid:clean --no-daemon",
+    "prepublishOnly": "sh prepare_hermesc.sh"
   },
   "bin": {
     "react-native": "local-cli/wrong-react-native.js"
