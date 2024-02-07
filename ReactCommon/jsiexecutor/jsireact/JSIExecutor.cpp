@@ -184,6 +184,19 @@ void JSIExecutor::loadApplicationScript(
               return Value::undefined();
             }));
   }
+  
+  runtime_->global().setProperty(
+      *runtime_,
+      "globalEvalWithSourceUrl",
+      Function::createFromHostFunction(
+          *runtime_,
+          PropNameID::forAscii(*runtime_, "globalEvalWithSourceUrl"),
+          1,
+          [this](
+              jsi::Runtime &,
+              const jsi::Value &,
+              const jsi::Value *args,
+              size_t count) { return globalEvalWithSourceUrl(args, count); }));
 
   if (runtimeInstaller_) {
     runtimeInstaller_(*runtime_);
@@ -503,6 +516,22 @@ Value JSIExecutor::nativeCallSyncHook(const Value* args, size_t count) {
     return Value::undefined();
   }
   return valueFromDynamic(*runtime_, result.value());
+}
+
+Value JSIExecutor::globalEvalWithSourceUrl(const Value *args, size_t count) {
+  if (count != 1 && count != 2) {
+    throw std::invalid_argument(
+        "globalEvalWithSourceUrl arg count must be 1 or 2");
+  }
+
+  auto code = args[0].asString(*runtime_).utf8(*runtime_);
+  std::string url;
+  if (count > 1 && args[1].isString()) {
+    url = args[1].asString(*runtime_).utf8(*runtime_);
+  }
+
+  return runtime_->evaluateJavaScript(
+      std::make_unique<StringBuffer>(std::move(code)), url);
 }
 
 void bindNativeLogger(Runtime &runtime, Logger logger) {
