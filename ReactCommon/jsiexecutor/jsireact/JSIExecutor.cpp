@@ -101,55 +101,6 @@ void JSIExecutor::loadApplicationScript(
 
   // TODO: check for and use precompiled HBC
 
-  auto parse_json_async = jsi::Function::createFromHostFunction(
-    *runtime_, 
-    jsi::PropNameID::forAscii(*runtime_, "nativeParseJsonAsync"), 1,
-    [=](jsi::Runtime &rt, const jsi::Value &thisValue, const jsi::Value *args, size_t count) -> jsi::Value {
-    if (count < 1) {
-      throw std::runtime_error(
-          "Incorrect arguments for nativeParseJsonAsync");
-    }
-    if (!args[0].isString()) {
-      throw std::runtime_error(
-          "Incorrect arguments for nativeParseJsonAsync");
-    }
-
-    const std::string jsonStr = args[0].asString(rt).utf8(rt);
-
-    auto promiseCtr = rt.global().getPropertyAsFunction(rt, "Promise");
-
-    auto promise = promiseCtr.callAsConstructor(rt, jsi::Function::createFromHostFunction(
-    *runtime_, 
-    jsi::PropNameID::forAscii(*runtime_, "executor"), 2,
-    [=](jsi::Runtime &rt, const jsi::Value &thisValue, const jsi::Value *args, size_t count) -> jsi::Value
-    {
-      auto resolve = std::make_shared<jsi::Value>(rt, args[0]);
-      auto reject = std::make_shared<jsi::Value>(rt, args[1]);
-
-        jsCallInvoker->invokeAsync(
-            [&rt, &jsonStr, resolve, reject] {
-              try {
-                auto result = jsi::Value::createFromJsonUtf8(rt, reinterpret_cast<const uint8_t*>(jsonStr.c_str()), jsonStr.size());
-
-                resolve->asObject(rt).asFunction(rt).call(
-                      rt, std::move(result));
-              } catch (std::exception &exc) {
-                auto errorCtr = rt.global().getPropertyAsFunction(rt, "Error");
-                auto error = errorCtr.callAsConstructor(
-                    rt, jsi::String::createFromAscii(rt, exc.what()));
-
-                reject->asObject(rt).asFunction(rt).call(rt, error);
-              }
-        });
-
-      return {};
-    }));
-
-    return promise;
-  });
-
-  runtime_->global().setProperty(*runtime_, "nativeParseJsonAsync", std::move(parse_json_async));
-
   // NOTE: inject op_sqlite_init fns
   runtime_->global().setProperty(
       *runtime_,
