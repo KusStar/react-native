@@ -201,7 +201,7 @@ const ReactNative = {
     return require('Vibration');
   },
   get YellowBox() {
-    return require('YellowBox');
+    return __DEV__ ? require('YellowBox') : null;
   },
 
   // Plugins
