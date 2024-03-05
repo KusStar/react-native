@@ -9,6 +9,8 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := hermes-executor-release
 
+LOCAL_CFLAGS := -fexceptions -frtti -O3
+
 LOCAL_SRC_FILES := $(wildcard $(LOCAL_PATH)/*.cpp)
 
 LOCAL_CPP_FEATURES := exceptions

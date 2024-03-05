@@ -7,6 +7,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := hermes-executor-common-release
+LOCAL_CFLAGS := -fexceptions -frtti -O3
 
 LOCAL_SRC_FILES := $(wildcard $(LOCAL_PATH)/*.cpp)
 
@@ -20,7 +21,7 @@ include $(BUILD_STATIC_LIBRARY)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE := hermes-executor-common-debug
-LOCAL_CFLAGS := -DHERMES_ENABLE_DEBUGGER=1
+LOCAL_CFLAGS := -DHERMES_ENABLE_DEBUGGER=0
 
 LOCAL_SRC_FILES := $(wildcard $(LOCAL_PATH)/*.cpp)
 
