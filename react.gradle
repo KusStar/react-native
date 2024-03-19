@@ -100,6 +100,33 @@ afterEvaluate {
                     "--reset-cache", "--entry-file", entryFile, "--bundle-output", jsBundleFile, "--assets-dest", resourcesDir, *extraArgs)
             }
 
+            if (enableHermes) {
+                doLast {
+                    def hermesFlags;
+                    def hbcTempFile = file("${jsBundleFile}.hbc")
+                    exec {
+                        if (targetName.toLowerCase().contains("release")) {
+                            // Can't use ?: since that will also substitute valid empty lists
+                            hermesFlags = config.hermesFlagsRelease
+                            if (hermesFlags == null) hermesFlags = [] // "-O", "-output-source-map"
+                        } else {
+                            hermesFlags = config.hermesFlagsDebug
+                            if (hermesFlags == null) hermesFlags = []
+                        }
+                        
+                        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                            commandLine("cmd", "/c", getHermesCommand(), "-emit-binary", "-out", hbcTempFile, jsBundleFile, *hermesFlags)
+                        } else {
+                            commandLine(getHermesCommand(), "-emit-binary", "-out", hbcTempFile, jsBundleFile, *hermesFlags)
+                        }
+                    }
+                    ant.move(
+                        file: hbcTempFile,
+                        toFile: jsBundleFile
+                    );
+                }
+            }
+
             enabled config."bundleIn${targetName}" != null
                 ? config."bundleIn${targetName}"
                 : config."bundleIn${variant.buildType.name.capitalize()}" != null
