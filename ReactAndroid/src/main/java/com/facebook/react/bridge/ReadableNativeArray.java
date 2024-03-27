@@ -7,6 +7,8 @@
 
 package com.facebook.react.bridge;
 
+import dalvik.annotation.optimization.FastNative;
+
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
 
@@ -56,6 +58,7 @@ public class ReadableNativeArray extends NativeArray implements ReadableArray {
     }
     return mLocalArray;
   }
+  @FastNative
   private native Object[] importArray();
 
   private ReadableType[] getLocalTypeArray() {
@@ -73,6 +76,7 @@ public class ReadableNativeArray extends NativeArray implements ReadableArray {
     }
     return mLocalTypeArray;
   }
+  @FastNative
   private native Object[] importTypeArray();
 
   @Override
@@ -83,6 +87,7 @@ public class ReadableNativeArray extends NativeArray implements ReadableArray {
     }
     return getLocalArray().length;
   }
+  @FastNative
   private native int sizeNative();
 
   @Override
@@ -93,6 +98,7 @@ public class ReadableNativeArray extends NativeArray implements ReadableArray {
     }
     return getLocalArray()[index] == null;
   }
+  @FastNative
   private native boolean isNullNative(int index);
 
   @Override
@@ -103,6 +109,7 @@ public class ReadableNativeArray extends NativeArray implements ReadableArray {
     }
     return ((Boolean) getLocalArray()[index]).booleanValue();
   }
+  @FastNative
   private native boolean getBooleanNative(int index);
 
   @Override
@@ -113,6 +120,7 @@ public class ReadableNativeArray extends NativeArray implements ReadableArray {
     }
     return ((Double) getLocalArray()[index]).doubleValue();
   }
+  @FastNative
   private native double getDoubleNative(int index);
 
   @Override
@@ -123,6 +131,7 @@ public class ReadableNativeArray extends NativeArray implements ReadableArray {
     }
     return ((Double) getLocalArray()[index]).intValue();
   }
+  @FastNative
   private native int getIntNative(int index);
 
   @Override
@@ -133,6 +142,7 @@ public class ReadableNativeArray extends NativeArray implements ReadableArray {
     }
     return (String) getLocalArray()[index];
   }
+  @FastNative
   private native String getStringNative(int index);
 
   @Override
@@ -143,6 +153,7 @@ public class ReadableNativeArray extends NativeArray implements ReadableArray {
     }
     return (ReadableNativeArray) getLocalArray()[index];
   }
+  @FastNative
   private native ReadableNativeArray getArrayNative(int index);
 
   @Override
@@ -153,6 +164,7 @@ public class ReadableNativeArray extends NativeArray implements ReadableArray {
     }
     return (ReadableNativeMap) getLocalArray()[index];
   }
+  @FastNative
   private native ReadableNativeMap getMapNative(int index);
 
   @Override
@@ -164,6 +176,7 @@ public class ReadableNativeArray extends NativeArray implements ReadableArray {
     return getLocalTypeArray()[index];
   }
 
+  @FastNative
   private native ReadableType getTypeNative(int index);
 
   @Override

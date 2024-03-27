@@ -7,6 +7,8 @@
 
 package com.facebook.react.bridge.queue;
 
+import dalvik.annotation.optimization.FastNative;
+
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
 
@@ -23,5 +25,6 @@ public class NativeRunnable implements Runnable {
     mHybridData = hybridData;
   }
 
+  @FastNative
   public native void run();
 }

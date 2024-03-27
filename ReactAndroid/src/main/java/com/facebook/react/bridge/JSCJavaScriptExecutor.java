@@ -7,6 +7,8 @@
 
 package com.facebook.react.bridge;
 
+import dalvik.annotation.optimization.FastNative;
+
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
 
@@ -26,5 +28,6 @@ import com.facebook.proguard.annotations.DoNotStrip;
   }
 
 
+  @FastNative
   private native static HybridData initHybrid(ReadableNativeMap jscConfig);
 }

@@ -7,6 +7,8 @@
 
 package com.facebook.react.jscexecutor;
 
+import dalvik.annotation.optimization.FastNative;
+
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
 import com.facebook.react.bridge.JavaScriptExecutor;
@@ -28,5 +30,6 @@ import com.facebook.soloader.SoLoader;
     return "JSCExecutor";
   }
 
+  @FastNative
   private static native HybridData initHybrid(ReadableNativeMap jscConfig);
 }

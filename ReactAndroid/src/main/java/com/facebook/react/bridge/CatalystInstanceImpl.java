@@ -7,6 +7,8 @@
 
 package com.facebook.react.bridge;
 
+import dalvik.annotation.optimization.FastNative;
+
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -94,8 +96,10 @@ public class CatalystInstanceImpl implements CatalystInstance {
 
   // C++ parts
   private final HybridData mHybridData;
+  @FastNative
   private native static HybridData initHybrid();
 
+  @FastNative
   public native CallInvokerHolderImpl getJSCallInvokerHolder();
 
   private CatalystInstanceImpl(
@@ -182,10 +186,12 @@ public class CatalystInstanceImpl implements CatalystInstance {
     jniExtendNativeModules(javaModules, cxxModules);
   }
 
+  @FastNative
   private native void jniExtendNativeModules(
     Collection<JavaModuleWrapper> javaModules,
     Collection<ModuleHolder> cxxModules);
 
+  @FastNative
   private native void initializeBridge(
       ReactCallback callback,
       JavaScriptExecutor jsExecutor,
@@ -224,9 +230,13 @@ public class CatalystInstanceImpl implements CatalystInstance {
     jniLoadScriptFromFile(fileName, sourceURL, loadSynchronously);
   }
 
+  @FastNative
   private native void jniSetSourceURL(String sourceURL);
+  @FastNative
   private native void jniRegisterSegment(int segmentId, String path);
+  @FastNative
   private native void jniLoadScriptFromAssets(AssetManager assetManager, String assetURL, boolean loadSynchronously);
+  @FastNative
   private native void jniLoadScriptFromFile(String fileName, String sourceURL, boolean loadSynchronously);
 
   @Override
@@ -266,6 +276,7 @@ public class CatalystInstanceImpl implements CatalystInstance {
     return mSourceURL;
   }
 
+  @FastNative
   private native void jniCallJSFunction(
     String module,
     String method,
@@ -297,6 +308,7 @@ public class CatalystInstanceImpl implements CatalystInstance {
     function.call(this);
   }
 
+  @FastNative
   private native void jniCallJSCallback(int callbackID, NativeArray arguments);
 
   @Override
@@ -424,6 +436,7 @@ public class CatalystInstanceImpl implements CatalystInstance {
     return mNativeModuleRegistry.getAllModules();
   }
 
+  @FastNative
   private native void jniHandleMemoryPressure(int level);
 
   @Override
@@ -454,6 +467,7 @@ public class CatalystInstanceImpl implements CatalystInstance {
     mBridgeIdleListeners.remove(listener);
   }
 
+  @FastNative
   @Override
   public native void setGlobalVariable(String propName, String jsonValue);
 
@@ -472,6 +486,7 @@ public class CatalystInstanceImpl implements CatalystInstance {
     return mJSIModuleRegistry.getModule(jsiModuleInterface);
   }
 
+  @FastNative
   private native long getJavaScriptContext();
 
   private void incrementPendingJSCalls() {

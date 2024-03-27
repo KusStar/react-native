@@ -7,6 +7,8 @@
 
 package com.facebook.hermes.reactexecutor;
 
+import dalvik.annotation.optimization.FastNative;
+
 import com.facebook.jni.HybridData;
 import com.facebook.react.bridge.JavaScriptExecutor;
 import com.facebook.soloader.SoLoader;
@@ -43,9 +45,12 @@ public class HermesExecutor extends JavaScriptExecutor {
    * @param path the path containing the file to inspect.
    * @return whether the given file is compatible with the Hermes VM.
    */
+  @FastNative
   public static native boolean canLoadFile(String path);
 
+  @FastNative
   private static native HybridData initHybridDefaultConfig();
 
+  @FastNative
   private static native HybridData initHybrid(long heapSizeMB);
 }

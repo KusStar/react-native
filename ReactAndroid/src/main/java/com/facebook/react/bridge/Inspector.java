@@ -5,6 +5,8 @@
 
 package com.facebook.react.bridge;
 
+import dalvik.annotation.optimization.FastNative;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -40,10 +42,13 @@ public class Inspector {
     }
   }
 
+  @FastNative
   private static native Inspector instance();
 
+  @FastNative
   private native Page[] getPagesNative();
 
+  @FastNative
   private native LocalConnection connectNative(int pageId, RemoteConnection remote);
 
   private Inspector(HybridData hybridData) {
@@ -94,7 +99,9 @@ public class Inspector {
   public static class LocalConnection {
     private final HybridData mHybridData;
 
+    @FastNative
     public native void sendMessage(String message);
+    @FastNative
     public native void disconnect();
 
     private LocalConnection(HybridData hybridData) {

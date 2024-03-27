@@ -5,6 +5,8 @@
 
 package com.facebook.react.bridge;
 
+import dalvik.annotation.optimization.FastNative;
+
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
 import com.facebook.soloader.SoLoader;
@@ -19,6 +21,7 @@ public class CxxModuleWrapper extends CxxModuleWrapperBase
     super(hd);
   }
 
+  @FastNative
   private static native CxxModuleWrapper makeDsoNative(String soPath, String factory);
 
   public static CxxModuleWrapper makeDso(String library, String factory) {

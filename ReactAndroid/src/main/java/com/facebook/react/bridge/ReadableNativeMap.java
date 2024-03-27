@@ -7,6 +7,8 @@
 
 package com.facebook.react.bridge;
 
+import dalvik.annotation.optimization.FastNative;
+
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
 
@@ -65,7 +67,9 @@ public class ReadableNativeMap extends NativeMap implements ReadableMap {
     }
     return mLocalMap;
   }
+  @FastNative
   private native String[] importKeys();
+  @FastNative
   private native Object[] importValues();
 
   private HashMap<String,ReadableType> getLocalTypeMap() {
@@ -92,6 +96,7 @@ public class ReadableNativeMap extends NativeMap implements ReadableMap {
     }
     return mLocalTypeMap;
   }
+  @FastNative
   private native Object[] importTypes();
 
   @Override
@@ -102,6 +107,7 @@ public class ReadableNativeMap extends NativeMap implements ReadableMap {
     }
     return getLocalMap().containsKey(name);
   }
+  @FastNative
   private native boolean hasKeyNative(String name);
 
   @Override
@@ -115,6 +121,7 @@ public class ReadableNativeMap extends NativeMap implements ReadableMap {
     }
     throw new NoSuchKeyException(name);
   }
+  @FastNative
   private native boolean isNullNative(String name);
 
   private Object getValue(String name) {
@@ -159,6 +166,7 @@ public class ReadableNativeMap extends NativeMap implements ReadableMap {
     }
     return getValue(name, Boolean.class).booleanValue();
   }
+  @FastNative
   private native boolean getBooleanNative(String name);
 
   @Override
@@ -169,6 +177,7 @@ public class ReadableNativeMap extends NativeMap implements ReadableMap {
     }
     return getValue(name, Double.class).doubleValue();
   }
+  @FastNative
   private native double getDoubleNative(String name);
 
   @Override
@@ -181,6 +190,7 @@ public class ReadableNativeMap extends NativeMap implements ReadableMap {
     // All numbers coming out of native are doubles, so cast here then truncate
     return getValue(name, Double.class).intValue();
   }
+  @FastNative
   private native int getIntNative(String name);
 
   @Override
@@ -191,6 +201,7 @@ public class ReadableNativeMap extends NativeMap implements ReadableMap {
     }
     return getNullableValue(name, String.class);
   }
+  @FastNative
   private native String getStringNative(String name);
 
   @Override
@@ -201,6 +212,7 @@ public class ReadableNativeMap extends NativeMap implements ReadableMap {
     }
     return getNullableValue(name, ReadableArray.class);
   }
+  @FastNative
   private native ReadableNativeArray getArrayNative(String name);
 
   @Override
@@ -211,6 +223,7 @@ public class ReadableNativeMap extends NativeMap implements ReadableMap {
     }
     return getNullableValue(name, ReadableNativeMap.class);
   }
+  @FastNative
   private native ReadableNativeMap getMapNative(String name);
 
   @Override
@@ -224,6 +237,7 @@ public class ReadableNativeMap extends NativeMap implements ReadableMap {
     }
     throw new NoSuchKeyException(name);
   }
+  @FastNative
   private native ReadableType getTypeNative(String name);
 
   @Override
@@ -317,11 +331,14 @@ public class ReadableNativeMap extends NativeMap implements ReadableMap {
       mHybridData = initHybrid(readableNativeMap);
     }
 
+    @FastNative
     @Override
     public native boolean hasNextKey();
+    @FastNative
     @Override
     public native String nextKey();
 
+    @FastNative
     private static native HybridData initHybrid(ReadableNativeMap readableNativeMap);
   }
 }

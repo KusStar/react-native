@@ -7,6 +7,10 @@
 
 package com.facebook.react.bridge;
 
+import dalvik.annotation.optimization.FastNative;
+
+import dalvik.annotation.optimization.FastNative;
+
 import javax.annotation.Nullable;
 
 import com.facebook.jni.HybridData;
@@ -76,5 +80,6 @@ public class ProxyJavaScriptExecutor extends JavaScriptExecutor {
     return "ProxyJavaScriptExecutor";
   }
 
+  @FastNative
   private native static HybridData initHybrid(JavaJSExecutor executor);
 }

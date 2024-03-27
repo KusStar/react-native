@@ -7,6 +7,8 @@
 
 package com.facebook.react.bridge;
 
+import dalvik.annotation.optimization.FastNative;
+
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
 
@@ -23,6 +25,7 @@ public abstract class NativeArray {
     mHybridData = hybridData;
   }
 
+  @FastNative
   @Override
   public native String toString();
 

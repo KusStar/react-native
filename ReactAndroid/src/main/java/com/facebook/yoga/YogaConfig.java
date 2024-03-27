@@ -7,6 +7,8 @@
 
 package com.facebook.yoga;
 
+import dalvik.annotation.optimization.FastNative;
+
 import com.facebook.proguard.annotations.DoNotStrip;
 import com.facebook.soloader.SoLoader;
 
@@ -31,6 +33,7 @@ public class YogaConfig {
     }
   }
 
+  @FastNative
   private native void jni_YGConfigFree(long nativePointer);
   @Override
   protected void finalize() throws Throwable {
@@ -41,6 +44,7 @@ public class YogaConfig {
     }
   }
 
+  @FastNative
   private native void jni_YGConfigSetExperimentalFeatureEnabled(
       long nativePointer,
       int feature,
@@ -49,16 +53,19 @@ public class YogaConfig {
     jni_YGConfigSetExperimentalFeatureEnabled(mNativePointer, feature.intValue(), enabled);
   }
 
+  @FastNative
   private native void jni_YGConfigSetUseWebDefaults(long nativePointer, boolean useWebDefaults);
   public void setUseWebDefaults(boolean useWebDefaults) {
     jni_YGConfigSetUseWebDefaults(mNativePointer, useWebDefaults);
   }
 
+  @FastNative
   private native void jni_YGConfigSetPointScaleFactor(long nativePointer, float pixelsInPoint);
   public void setPointScaleFactor(float pixelsInPoint) {
     jni_YGConfigSetPointScaleFactor(mNativePointer, pixelsInPoint);
   }
 
+  @FastNative
   private native void jni_YGConfigSetUseLegacyStretchBehaviour(long nativePointer, boolean useLegacyStretchBehaviour);
 
   /**
@@ -70,6 +77,7 @@ public class YogaConfig {
     jni_YGConfigSetUseLegacyStretchBehaviour(mNativePointer, useLegacyStretchBehaviour);
   }
 
+  @FastNative
   private native void jni_YGConfigSetShouldDiffLayoutWithoutLegacyStretchBehaviour(
       long nativePointer, boolean shouldDiffLayoutWithoutLegacyStretchBehaviour);
   /**
@@ -83,6 +91,7 @@ public class YogaConfig {
         mNativePointer, shouldDiffLayoutWithoutLegacyStretchBehaviour);
   }
 
+  @FastNative
   private native void jni_YGConfigSetLogger(long nativePointer, Object logger);
   public void setLogger(YogaLogger logger) {
     mLogger = logger;
@@ -93,6 +102,7 @@ public class YogaConfig {
     return mLogger;
   }
 
+  @FastNative
   private native void jni_YGConfigSetHasCloneNodeFunc(long nativePointer, boolean hasClonedFunc);
 
   public void setOnCloneNode(YogaNodeCloneFunction cloneYogaNodeFunction) {

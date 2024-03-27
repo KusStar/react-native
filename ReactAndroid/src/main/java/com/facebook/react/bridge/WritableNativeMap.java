@@ -7,6 +7,8 @@
 
 package com.facebook.react.bridge;
 
+import dalvik.annotation.optimization.FastNative;
+
 import com.facebook.jni.HybridData;
 import com.facebook.infer.annotation.Assertions;
 import com.facebook.proguard.annotations.DoNotStrip;
@@ -22,14 +24,19 @@ public class WritableNativeMap extends ReadableNativeMap implements WritableMap 
     ReactBridge.staticInit();
   }
 
+  @FastNative
   @Override
   public native void putBoolean(String key, boolean value);
+  @FastNative
   @Override
   public native void putDouble(String key, double value);
+  @FastNative
   @Override
   public native void putInt(String key, int value);
+  @FastNative
   @Override
   public native void putString(String key, String value);
+  @FastNative
   @Override
   public native void putNull(String key);
 
@@ -60,9 +67,13 @@ public class WritableNativeMap extends ReadableNativeMap implements WritableMap 
     super(initHybrid());
   }
 
+  @FastNative
   private static native HybridData initHybrid();
 
+  @FastNative
   private native void putNativeMap(String key, ReadableNativeMap value);
+  @FastNative
   private native void putNativeArray(String key, ReadableNativeArray value);
+  @FastNative
   private native void mergeNativeMap(ReadableNativeMap source);
 }

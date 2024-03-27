@@ -5,6 +5,8 @@
 
 package com.facebook.react.bridge;
 
+import dalvik.annotation.optimization.FastNative;
+
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
 import com.facebook.react.bridge.Callback;
@@ -30,5 +32,6 @@ public class CxxCallbackImpl implements Callback {
     nativeInvoke(fromJavaArgs(args));
   }
 
+  @FastNative
   private native void nativeInvoke(NativeArray arguments);
 }

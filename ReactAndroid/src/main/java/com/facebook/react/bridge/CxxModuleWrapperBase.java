@@ -5,6 +5,9 @@
 
 package com.facebook.react.bridge;
 
+import dalvik.annotation.optimization.FastNative;
+
+
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
 
@@ -24,6 +27,7 @@ public class CxxModuleWrapperBase implements NativeModule
   @DoNotStrip
   private HybridData mHybridData;
 
+  @FastNative
   @Override
   public native String getName();
 
