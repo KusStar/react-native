@@ -43,15 +43,15 @@ function replace_gradle() {
 }
 
 function replace_hermesc() {
-  REWIND_HERMESC=$REWIND_DIR/node_modules/react-native/hermesc
+  REWIND_HERMES=$REWIND_DIR/node_modules/react-native/hermes-engine
 
-  echo "Removing $REWIND_HERMESC"
+  echo "Removing $REWIND_HERMES"
 
-  rm $REWIND_HERMESC
+  rm -rf $REWIND_HERMES
 
-  echo "Copying ./hermesc to $REWIND_HERMESC"
+  echo "Copying ./hermes-engine to $REWIND_HERMES"
 
-  cp -r ./hermesc $REWIND_HERMESC
+  cp -r ./hermes-engine $REWIND_HERMES
 }
 
 if [ "$1" == "android" ]; then
