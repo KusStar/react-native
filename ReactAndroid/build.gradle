@@ -175,7 +175,7 @@ task prepareJSC(dependsOn: downloadJSC) {
 }
 
 task downloadHermes(dependsOn: createNativeDepsDirectories, type: Download) {
-    src "https://registry.npmjs.org/hermes-engine/-/hermes-engine-${HERMES_VERSION}.tgz"
+    src "https://registry.npmjs.org/@kuss/hermes-engine/-/hermes-engine-${HERMES_VERSION}.tgz"
     onlyIfNewer true
     overwrite false
     dest new File(downloadsDir, "hermes-${HERMES_VERSION}.tar.gz")

@@ -1,12 +1,14 @@
 DOWNLOADS=./ReactAndroid/build/downloads
 
 # get the latest hermes
-HERMES_TAR=$(ls -l $DOWNLOADS | grep hermes | sort -k 5 -r | head -n 1 | awk '{print $9}')
+HERMES_TAR=$(ls $DOWNLOADS/hermes-*.tar.gz | sort -V -r | head -n 1)
+
+echo "HERMES_TAR: $HERMES_TAR"
 
 if [ ! -d $DOWNLOADS/hermes ]; then
   mkdir $DOWNLOADS/hermes
 fi
-tar -xzf $DOWNLOADS/$HERMES_TAR -C $DOWNLOADS/hermes
+tar -xzf $HERMES_TAR -C $DOWNLOADS/hermes
 
 # get the latest hermesc
 OSX_HERMESC=$DOWNLOADS/hermes/package/osx-bin
@@ -22,3 +24,7 @@ fi
 
 cp -r $OSX_HERMESC $TARGET
 cp -r $LINUX_HERMESC $TARGET
+
+echo "Make $TARGET done"
+
+ls -l $TARGET
