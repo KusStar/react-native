@@ -131,10 +131,8 @@ public class ReactViewGroup extends ViewGroup implements
 
   @Override
   public void onRtlPropertiesChanged(int layoutDirection) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-      if (mReactBackgroundDrawable != null) {
-        mReactBackgroundDrawable.setResolvedLayoutDirection(mLayoutDirection);
-      }
+    if (mReactBackgroundDrawable != null) {
+      mReactBackgroundDrawable.setResolvedLayoutDirection(mLayoutDirection);
     }
   }
 
@@ -233,35 +231,11 @@ public class ReactViewGroup extends ViewGroup implements
   public void setBorderRadius(float borderRadius) {
     ReactViewBackgroundDrawable backgroundDrawable = getOrCreateReactViewBackground();
     backgroundDrawable.setRadius(borderRadius);
-
-    if (Build.VERSION_CODES.HONEYCOMB < Build.VERSION.SDK_INT
-      && Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
-      final int UPDATED_LAYER_TYPE =
-        backgroundDrawable.hasRoundedBorders()
-          ? View.LAYER_TYPE_SOFTWARE
-          : View.LAYER_TYPE_HARDWARE;
-
-      if (UPDATED_LAYER_TYPE != getLayerType()) {
-        setLayerType(UPDATED_LAYER_TYPE, null);
-      }
-    }
   }
 
   public void setBorderRadius(float borderRadius, int position) {
     ReactViewBackgroundDrawable backgroundDrawable = getOrCreateReactViewBackground();
     backgroundDrawable.setRadius(borderRadius, position);
-
-    if (Build.VERSION_CODES.HONEYCOMB < Build.VERSION.SDK_INT
-        && Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
-      final int UPDATED_LAYER_TYPE =
-          backgroundDrawable.hasRoundedBorders()
-              ? View.LAYER_TYPE_SOFTWARE
-              : View.LAYER_TYPE_HARDWARE;
-
-      if (UPDATED_LAYER_TYPE != getLayerType()) {
-        setLayerType(UPDATED_LAYER_TYPE, null);
-      }
-    }
   }
 
   public void setBorderStyle(@Nullable String style) {
@@ -617,13 +591,11 @@ public class ReactViewGroup extends ViewGroup implements
         updateBackgroundDrawable(layerDrawable);
       }
 
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-        mLayoutDirection =
-            I18nUtil.getInstance().isRTL(getContext())
-                ? LAYOUT_DIRECTION_RTL
-                : LAYOUT_DIRECTION_LTR;
-        mReactBackgroundDrawable.setResolvedLayoutDirection(mLayoutDirection);
-      }
+      mLayoutDirection =
+          I18nUtil.getInstance().isRTL(getContext())
+              ? LAYOUT_DIRECTION_RTL
+              : LAYOUT_DIRECTION_LTR;
+      mReactBackgroundDrawable.setResolvedLayoutDirection(mLayoutDirection);
     }
     return mReactBackgroundDrawable;
   }
@@ -650,11 +622,7 @@ public class ReactViewGroup extends ViewGroup implements
    *     background
    */
   private void updateBackgroundDrawable(Drawable drawable) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-      super.setBackground(drawable);
-    } else {
-      super.setBackgroundDrawable(drawable);
-    }
+    super.setBackground(drawable);
   }
 
   @Override
@@ -720,7 +688,6 @@ public class ReactViewGroup extends ViewGroup implements
               mReactBackgroundDrawable.getBorderRadiusOrDefaultTo(
                 borderRadius, ReactViewBackgroundDrawable.BorderRadiusLocation.BOTTOM_RIGHT);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
               final boolean isRTL = mLayoutDirection == View.LAYOUT_DIRECTION_RTL;
               float topStartBorderRadius =
                 mReactBackgroundDrawable.getBorderRadius(
@@ -791,7 +758,6 @@ public class ReactViewGroup extends ViewGroup implements
                   bottomRightBorderRadius = directionAwareBottomRightRadius;
                 }
               }
-            }
 
             if (topLeftBorderRadius > 0
               || topRightBorderRadius > 0

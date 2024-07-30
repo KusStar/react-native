@@ -335,7 +335,7 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
 
     public void linkBridge() {
       if (messagingEnabled) {
-        if (ReactBuildConfig.DEBUG && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (ReactBuildConfig.DEBUG) {
           // See isNative in lodash
           String testPostMessageNative = "String(window.postMessage) === String(Object.hasOwnProperty).replace('hasOwnProperty', 'postMessage')";
           evaluateJavascript(testPostMessageNative, new ValueCallback<String>() {
@@ -415,10 +415,8 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
 
     settings.setAllowFileAccess(false);
     settings.setAllowContentAccess(false);
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-      settings.setAllowFileAccessFromFileURLs(false);
-      setAllowUniversalAccessFromFileURLs(webView, false);
-    }
+    settings.setAllowFileAccessFromFileURLs(false);
+    setAllowUniversalAccessFromFileURLs(webView, false);
     setMixedContentMode(webView, "never");
 
     // Fixes broken full-screen modals/galleries due to body height being 0.
@@ -427,7 +425,7 @@ public class ReactWebViewManager extends SimpleViewManager<WebView> {
                 LayoutParams.MATCH_PARENT));
 
     setGeolocationEnabled(webView, false);
-    if (ReactBuildConfig.DEBUG && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+    if (ReactBuildConfig.DEBUG) {
       WebView.setWebContentsDebuggingEnabled(true);
     }
 

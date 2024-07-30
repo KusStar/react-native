@@ -310,11 +310,7 @@ public class ReactRootView extends SizeMonitoringFrameLayout
   protected void onDetachedFromWindow() {
     super.onDetachedFromWindow();
     if (mIsAttachedToInstance) {
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-        getViewTreeObserver().removeOnGlobalLayoutListener(getCustomGlobalLayoutListener());
-      } else {
-        getViewTreeObserver().removeGlobalOnLayoutListener(getCustomGlobalLayoutListener());
-      }
+      getViewTreeObserver().removeOnGlobalLayoutListener(getCustomGlobalLayoutListener());
     }
   }
 

@@ -373,7 +373,6 @@ public class ReactViewBackgroundDrawable extends Drawable {
         int colorRight = getBorderColor(Spacing.RIGHT);
         int colorBottom = getBorderColor(Spacing.BOTTOM);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
           final boolean isRTL = getResolvedLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
           int colorStart = getBorderColor(Spacing.START);
           int colorEnd = getBorderColor(Spacing.END);
@@ -411,7 +410,6 @@ public class ReactViewBackgroundDrawable extends Drawable {
               colorRight = directionAwareColorRight;
             }
           }
-        }
 
         final float left = mOuterClipTempRectForBorderRadius.left;
         final float right = mOuterClipTempRectForBorderRadius.right;
@@ -546,7 +544,6 @@ public class ReactViewBackgroundDrawable extends Drawable {
     float bottomRightRadius =
         getBorderRadiusOrDefaultTo(borderRadius, BorderRadiusLocation.BOTTOM_RIGHT);
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
       final boolean isRTL = getResolvedLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
       float topStartRadius = getBorderRadius(BorderRadiusLocation.TOP_START);
       float topEndRadius = getBorderRadius(BorderRadiusLocation.TOP_END);
@@ -601,7 +598,6 @@ public class ReactViewBackgroundDrawable extends Drawable {
           bottomRightRadius = directionAwareBottomRightRadius;
         }
       }
-    }
 
     final float innerTopLeftRadiusX = Math.max(topLeftRadius - borderWidth.left, 0);
     final float innerTopLeftRadiusY = Math.max(topLeftRadius - borderWidth.top, 0);
@@ -1023,7 +1019,6 @@ public class ReactViewBackgroundDrawable extends Drawable {
       int colorRight = getBorderColor(Spacing.RIGHT);
       int colorBottom = getBorderColor(Spacing.BOTTOM);
 
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
         final boolean isRTL = getResolvedLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
         int colorStart = getBorderColor(Spacing.START);
         int colorEnd = getBorderColor(Spacing.END);
@@ -1059,7 +1054,6 @@ public class ReactViewBackgroundDrawable extends Drawable {
             colorRight = directionAwareColorRight;
           }
         }
-      }
 
       int left = bounds.left;
       int top = bounds.top;
@@ -1233,7 +1227,7 @@ public class ReactViewBackgroundDrawable extends Drawable {
     float borderLeftWidth = getBorderWidthOrDefaultTo(borderWidth, Spacing.LEFT);
     float borderRightWidth = getBorderWidthOrDefaultTo(borderWidth, Spacing.RIGHT);
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 && mBorderWidth != null) {
+    if (mBorderWidth != null) {
       final boolean isRTL = getResolvedLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
       float borderStartWidth = mBorderWidth.getRaw(Spacing.START);
       float borderEndWidth = mBorderWidth.getRaw(Spacing.END);
