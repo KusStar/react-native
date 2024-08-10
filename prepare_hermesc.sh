@@ -1,3 +1,5 @@
+set -e
+
 DOWNLOADS=./ReactAndroid/build/downloads
 
 # get the latest hermes
