@@ -7,6 +7,10 @@
 
 package com.facebook.react.views.textinput;
 
+import android.os.Build;
+import android.graphics.BlendMode;
+import android.graphics.BlendModeColorFilter;
+
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -349,10 +353,32 @@ public class ReactTextInputManager extends BaseViewManager<ReactEditText, Layout
     setCursorColor(view, color);
   }
 
-  private void setCursorColor(ReactEditText view, @Nullable Integer color) {
-    // Evil method that uses reflection because there is no public API to changes
-    // the cursor color programmatically.
-    // Based on http://stackoverflow.com/questions/25996032/how-to-change-programatically-edittext-cursor-color-in-android.
+  // from https://github.com/KusStar/react-native/commit/d4adf50e1e3fbc913fc80c49e32caff11aa32f8f
+  @ReactProp(name = "cursorColor", customType = "Color")
+  public void setCursorColor(ReactEditText view, @Nullable Integer color) {
+    if (color == null) {
+      return;
+    }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      Drawable cursorDrawable = view.getTextCursorDrawable();
+      if (cursorDrawable != null) {
+        cursorDrawable.setColorFilter(new BlendModeColorFilter(color, BlendMode.SRC_IN));
+        view.setTextCursorDrawable(cursorDrawable);
+      }
+      return;
+    }
+
+    if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+      // Pre-Android 10, there was no supported API to change the cursor color programmatically.
+      // In Android 9.0, they changed the underlying implementation,
+      // but also "dark greylisted" the new field, rendering it unusable.
+      return;
+    }
+
+    // The evil code that follows uses reflection to achieve this on Android 8.1 and below.
+    // Based on
+    // http://stackoverflow.com/questions/25996032/how-to-change-programatically-edittext-cursor-color-in-android.
     try {
       // Get the original cursor drawable resource.
       Field cursorDrawableResField = TextView.class.getDeclaredField("mCursorDrawableRes");
@@ -365,9 +391,7 @@ public class ReactTextInputManager extends BaseViewManager<ReactEditText, Layout
       }
 
       Drawable drawable = ContextCompat.getDrawable(view.getContext(), drawableResId);
-      if (color != null) {
-        drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
-      }
+      drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
       Drawable[] drawables = {drawable, drawable};
 
       // Update the current cursor drawable with the new one.
@@ -380,7 +404,8 @@ public class ReactTextInputManager extends BaseViewManager<ReactEditText, Layout
     } catch (NoSuchFieldException ex) {
       // Ignore errors to avoid crashing if these private fields don't exist on modified
       // or future android versions.
-    } catch (IllegalAccessException ex) {}
+    } catch (IllegalAccessException ex) {
+    }
   }
 
   @ReactProp(name = "caretHidden", defaultBoolean = false)

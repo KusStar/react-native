@@ -196,6 +196,7 @@ type Props = $ReadOnly<{|
   placeholderTextColor?: ?ColorValue,
   secureTextEntry?: ?boolean,
   selectionColor?: ?ColorValue,
+  cursorColor?: ?ColorValue,
   selection?: ?$ReadOnly<{|
     start: number,
     end?: ?number,
@@ -600,6 +601,7 @@ const TextInput = createReactClass({
      * The highlight and cursor color of the text input.
      */
     selectionColor: ColorPropType,
+    cursorColor: ColorPropType,
     /**
      * An instance of `DocumentSelectionState`, this is some state that is responsible for
      * maintaining selection information for a document.
