@@ -56,7 +56,7 @@ function replace_hermesc() {
 
 if [ "$1" == "android" ]; then
   replace_android
-elif [ "$1" == "libraris" ]; then
+elif [ "$1" == "libraries" ]; then
   replace_libraries
 elif [ "$1" == "gradle" ]; then
   replace_gradle
