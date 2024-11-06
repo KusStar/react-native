@@ -189,13 +189,13 @@ MethodCallResult MethodInvoker::invoke(std::weak_ptr<Instance>& instance, alias_
   });
 
 #define PRIMITIVE_CASE(METHOD) {                                             \
-  auto result = env->Call ## METHOD ## MethodA(module.get(), method_, args); \
+  auto result = env->Call##METHOD##MethodA(module.get(), method_, args); \
   throwPendingJniExceptionAsCppException();                                  \
   return folly::dynamic(result);                                             \
 }
 
 #define PRIMITIVE_CASE_CASTING(METHOD, RESULT_TYPE) {                        \
-  auto result = env->Call ## METHOD ## MethodA(module.get(), method_, args); \
+  auto result = env->Call##METHOD##MethodA(module.get(), method_, args); \
   throwPendingJniExceptionAsCppException();                                  \
   return folly::dynamic(static_cast<RESULT_TYPE>(result));                   \
 }
