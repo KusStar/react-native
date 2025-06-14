@@ -26,4 +26,11 @@ APP_CFLAGS := -Wall -Werror
 APP_CPPFLAGS := -std=c++17
 APP_LDFLAGS := -Wl,--build-id
 
+# 16kb page size align, ndk27+
+APP_SUPPORT_FLEXIBLE_PAGE_SIZES := true
+
+# ndk27 compile error
+APP_CPPFLAGS += -Wno-vla-cxx-extension -Wno-deprecated-builtins -Wno-deprecated-declarations
+APP_CPPFLAGS += -D_LIBCPP_DISABLE_DEPRECATION_WARNINGS -D_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION
+
 NDK_TOOLCHAIN_VERSION := clang
