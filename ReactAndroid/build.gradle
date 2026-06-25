@@ -141,6 +141,10 @@ task prepareGlog(dependsOn: dependenciesPath ? [] : [downloadGlog], type: Copy) 
             includeEmptyDirs = false
             into "$thirdPartyNdkDir/glog/exported/glog"
         }
+        copy {
+            from "$thirdPartyNdkDir/glog/glog-${GLOG_VERSION}/src/glog/log_severity.h"
+            into "$thirdPartyNdkDir/glog/exported/glog"
+        }
     }
 }
 
@@ -174,16 +178,26 @@ task prepareJSC(dependsOn: downloadJSC) {
     
 }
 
+def hermesTarballOverride = project.findProperty("HERMES_TARBALL_OVERRIDE") ?: System.getenv("HERMES_TARBALL_OVERRIDE")
+
 task downloadHermes(dependsOn: createNativeDepsDirectories, type: Download) {
     src "https://registry.npmjs.org/@kuss/hermes-engine/-/hermes-engine-${HERMES_VERSION}.tgz"
     onlyIfNewer true
     overwrite false
     dest new File(downloadsDir, "hermes-${HERMES_VERSION}.tar.gz")
+    enabled hermesTarballOverride == null || hermesTarballOverride == ""
 }
 
-task prepareHermes(dependsOn: downloadHermes) {
+task prepareHermes(dependsOn: hermesTarballOverride ? createNativeDepsDirectories : downloadHermes) {
     doLast {
-        def hermesTar = tarTree(downloadHermes.dest)
+        def hermesArchive = hermesTarballOverride ? file(hermesTarballOverride) : downloadHermes.dest
+        if (!hermesArchive.exists()) {
+            throw new GradleException("Hermes tarball not found: ${hermesArchive}")
+        }
+
+        delete "$thirdPartyNdkDir/hermes"
+
+        def hermesTar = tarTree(hermesArchive)
         def hermesAAR = hermesTar.matching({ it.include "**/android/hermes-release.aar" }).singleFile
         def soFiles = zipTree(hermesAAR).matching({ it.include "**/*.so" })
         def headerFiles = hermesTar.matching({ it.include "**/android/include/**/*.h" })
@@ -293,8 +307,271 @@ def getNdkBuildFullPath() {
     return ndkBuildFullPath
 }
 
+def ELF_64BIT = 2
+def ELF_LITTLE_ENDIAN = 1
+def ELF_BIG_ENDIAN = 2
+def ELF_LOAD_SEGMENT = 1L
+def ELF_16KB_PAGE_SIZE = 16 * 1024L
+
+def readElfValue = { RandomAccessFile file, long offset, int byteCount, boolean littleEndian ->
+    byte[] bytes = new byte[byteCount]
+    file.seek(offset)
+    file.readFully(bytes)
+
+    long value = 0
+    if (littleEndian) {
+        for (int i = byteCount - 1; i >= 0; i--) {
+            value = (value << 8) | (bytes[i] & 0xff)
+        }
+    } else {
+        for (int i = 0; i < byteCount; i++) {
+            value = (value << 8) | (bytes[i] & 0xff)
+        }
+    }
+    return value
+}
+
+def writeElfValue = { RandomAccessFile file, long offset, int byteCount, long value, boolean littleEndian ->
+    byte[] bytes = new byte[byteCount]
+    for (int i = 0; i < byteCount; i++) {
+        int index = littleEndian ? i : byteCount - 1 - i
+        bytes[index] = (byte) ((value >> (8 * i)) & 0xff)
+    }
+
+    file.seek(offset)
+    file.write(bytes)
+}
+
+def readElfBytesValue = { byte[] bytes, long offset, int byteCount, boolean littleEndian ->
+    long value = 0
+    if (littleEndian) {
+        for (int i = byteCount - 1; i >= 0; i--) {
+            value = (value << 8) | (bytes[(int) offset + i] & 0xff)
+        }
+    } else {
+        for (int i = 0; i < byteCount; i++) {
+            value = (value << 8) | (bytes[(int) offset + i] & 0xff)
+        }
+    }
+    return value
+}
+
+def writeElfBytesValue = { byte[] bytes, long offset, int byteCount, long value, boolean littleEndian ->
+    for (int i = 0; i < byteCount; i++) {
+        int index = littleEndian ? i : byteCount - 1 - i
+        bytes[(int) offset + index] = (byte) ((value >> (8 * i)) & 0xff)
+    }
+}
+
+def insertElfPadding = { byte[] bytes, long offset, int padding ->
+    byte[] padded = new byte[bytes.length + padding]
+    System.arraycopy(bytes, 0, padded, 0, (int) offset)
+    System.arraycopy(bytes, (int) offset, padded, (int) offset + padding, bytes.length - (int) offset)
+    return padded
+}
+
+def shiftElfOffsets = { byte[] bytes, long insertionOffset, int padding, boolean littleEndian ->
+    long programHeaderOffset = readElfBytesValue(bytes, 32, 8, littleEndian)
+    if (programHeaderOffset >= insertionOffset && programHeaderOffset != 0L) {
+        programHeaderOffset += padding
+        writeElfBytesValue(bytes, 32, 8, programHeaderOffset, littleEndian)
+    }
+
+    int programHeaderEntrySize = (int) readElfBytesValue(bytes, 54, 2, littleEndian)
+    int programHeaderCount = (int) readElfBytesValue(bytes, 56, 2, littleEndian)
+    for (int i = 0; i < programHeaderCount; i++) {
+        long entryOffset = programHeaderOffset + (i * programHeaderEntrySize)
+        long segmentFileOffset = readElfBytesValue(bytes, entryOffset + 8, 8, littleEndian)
+        if (segmentFileOffset >= insertionOffset && segmentFileOffset != 0L) {
+            writeElfBytesValue(bytes, entryOffset + 8, 8, segmentFileOffset + padding, littleEndian)
+        }
+    }
+
+    long sectionHeaderOffset = readElfBytesValue(bytes, 40, 8, littleEndian)
+    if (sectionHeaderOffset >= insertionOffset && sectionHeaderOffset != 0L) {
+        sectionHeaderOffset += padding
+        writeElfBytesValue(bytes, 40, 8, sectionHeaderOffset, littleEndian)
+    }
+
+    int sectionHeaderEntrySize = (int) readElfBytesValue(bytes, 58, 2, littleEndian)
+    int sectionHeaderCount = (int) readElfBytesValue(bytes, 60, 2, littleEndian)
+    for (int i = 0; i < sectionHeaderCount; i++) {
+        long entryOffset = sectionHeaderOffset + (i * sectionHeaderEntrySize)
+        long sectionFileOffset = readElfBytesValue(bytes, entryOffset + 24, 8, littleEndian)
+        if (sectionFileOffset >= insertionOffset && sectionFileOffset != 0L) {
+            writeElfBytesValue(bytes, entryOffset + 24, 8, sectionFileOffset + padding, littleEndian)
+        }
+    }
+}
+
+def readElf64LoadSegments = { byte[] bytes, boolean littleEndian ->
+    def loadSegments = []
+    long programHeaderOffset = readElfBytesValue(bytes, 32, 8, littleEndian)
+    int programHeaderEntrySize = (int) readElfBytesValue(bytes, 54, 2, littleEndian)
+    int programHeaderCount = (int) readElfBytesValue(bytes, 56, 2, littleEndian)
+
+    for (int i = 0; i < programHeaderCount; i++) {
+        long entryOffset = programHeaderOffset + (i * programHeaderEntrySize)
+        long segmentType = readElfBytesValue(bytes, entryOffset, 4, littleEndian)
+        if (segmentType != ELF_LOAD_SEGMENT) {
+            continue
+        }
+
+        loadSegments << [
+                entryOffset: entryOffset,
+                fileOffset: readElfBytesValue(bytes, entryOffset + 8, 8, littleEndian),
+                virtualAddress: readElfBytesValue(bytes, entryOffset + 16, 8, littleEndian),
+                alignment: readElfBytesValue(bytes, entryOffset + 48, 8, littleEndian),
+        ]
+    }
+
+    return loadSegments.sort { it.fileOffset }
+}
+
+def forEachElf64LoadSegment = { File sharedObject, String mode, Closure visitor ->
+    if (!sharedObject.exists()) {
+        return
+    }
+
+    RandomAccessFile file = new RandomAccessFile(sharedObject, mode)
+    try {
+        if (file.length() < 64) {
+            return
+        }
+
+        byte[] ident = new byte[16]
+        file.seek(0)
+        file.readFully(ident)
+
+        if ((ident[0] & 0xff) != 0x7f || ident[1] != 0x45 || ident[2] != 0x4c || ident[3] != 0x46) {
+            return
+        }
+
+        int elfClass = ident[4] & 0xff
+        int elfData = ident[5] & 0xff
+        if (elfClass != ELF_64BIT) {
+            return
+        }
+        if (elfData != ELF_LITTLE_ENDIAN && elfData != ELF_BIG_ENDIAN) {
+            throw new GradleException("Unsupported ELF byte order in ${sharedObject}")
+        }
+
+        boolean littleEndian = elfData == ELF_LITTLE_ENDIAN
+        long programHeaderOffset = readElfValue(file, 32, 8, littleEndian)
+        int programHeaderEntrySize = (int) readElfValue(file, 54, 2, littleEndian)
+        int programHeaderCount = (int) readElfValue(file, 56, 2, littleEndian)
+
+        for (int i = 0; i < programHeaderCount; i++) {
+            long entryOffset = programHeaderOffset + (i * programHeaderEntrySize)
+            if (entryOffset + programHeaderEntrySize > file.length()) {
+                throw new GradleException("Invalid ELF program header in ${sharedObject}")
+            }
+
+            long segmentType = readElfValue(file, entryOffset, 4, littleEndian)
+            if (segmentType != ELF_LOAD_SEGMENT) {
+                continue
+            }
+
+            long segmentFileOffset = readElfValue(file, entryOffset + 8, 8, littleEndian)
+            long segmentVirtualAddress = readElfValue(file, entryOffset + 16, 8, littleEndian)
+            long segmentAlignment = readElfValue(file, entryOffset + 48, 8, littleEndian)
+            visitor.call(file, sharedObject, entryOffset, segmentFileOffset, segmentVirtualAddress, segmentAlignment, littleEndian)
+        }
+    } finally {
+        file.close()
+    }
+}
+
+def formatElfHex = { long value ->
+    return "0x${Long.toHexString(value)}"
+}
+
+def patchElf16KbAlignment = { File sharedObject ->
+    if (!sharedObject.exists()) {
+        return
+    }
+
+    byte[] bytes = sharedObject.bytes
+    if (bytes.length < 64 ||
+            (bytes[0] & 0xff) != 0x7f || bytes[1] != 0x45 || bytes[2] != 0x4c || bytes[3] != 0x46 ||
+            (bytes[4] & 0xff) != ELF_64BIT) {
+        return
+    }
+
+    int elfData = bytes[5] & 0xff
+    if (elfData != ELF_LITTLE_ENDIAN && elfData != ELF_BIG_ENDIAN) {
+        throw new GradleException("Unsupported ELF byte order in ${sharedObject}")
+    }
+
+    boolean littleEndian = elfData == ELF_LITTLE_ENDIAN
+    boolean patched = false
+    while (true) {
+        def segment = readElf64LoadSegments(bytes, littleEndian).find { it.alignment < ELF_16KB_PAGE_SIZE }
+        if (segment == null) {
+            break
+        }
+
+        int padding = (int) (((segment.virtualAddress % ELF_16KB_PAGE_SIZE) -
+                (segment.fileOffset % ELF_16KB_PAGE_SIZE) + ELF_16KB_PAGE_SIZE) % ELF_16KB_PAGE_SIZE)
+        if (padding > 0) {
+            if (segment.fileOffset <= 0L || segment.fileOffset > bytes.length) {
+                throw new GradleException(
+                        "Cannot safely align ${sharedObject} for 16 KB pages. " +
+                        "LOAD offset=${formatElfHex(segment.fileOffset)} vaddr=${formatElfHex(segment.virtualAddress)} " +
+                        "align=${formatElfHex(segment.alignment)}")
+            }
+
+            bytes = insertElfPadding(bytes, segment.fileOffset, padding)
+            shiftElfOffsets(bytes, segment.fileOffset, padding, littleEndian)
+            patched = true
+            continue
+        }
+
+        writeElfBytesValue(bytes, segment.entryOffset + 48, 8, ELF_16KB_PAGE_SIZE, littleEndian)
+        patched = true
+    }
+
+    if (patched) {
+        sharedObject.withOutputStream { it.write(bytes) }
+        println "Patched 16 KB ELF alignment: ${sharedObject}"
+    }
+}
+
+def findElf16KbAlignmentErrors = { File sharedObject ->
+    def errors = []
+
+    forEachElf64LoadSegment(sharedObject, "r") {
+        RandomAccessFile file,
+        File soFile,
+        long entryOffset,
+        long segmentFileOffset,
+        long segmentVirtualAddress,
+        long segmentAlignment,
+        boolean littleEndian ->
+
+        if (segmentAlignment < ELF_16KB_PAGE_SIZE) {
+            errors << "${soFile}: LOAD offset=${formatElfHex(segmentFileOffset)} " +
+                    "vaddr=${formatElfHex(segmentVirtualAddress)} align=${formatElfHex(segmentAlignment)}"
+        } else if ((segmentFileOffset % ELF_16KB_PAGE_SIZE) != (segmentVirtualAddress % ELF_16KB_PAGE_SIZE)) {
+            errors << "${soFile}: LOAD offset=${formatElfHex(segmentFileOffset)} " +
+                    "vaddr=${formatElfHex(segmentVirtualAddress)} align=${formatElfHex(segmentAlignment)} " +
+                    "does not satisfy offset % 16 KB == vaddr % 16 KB"
+        }
+    }
+
+    return errors
+}
+
+task alignPrebuiltNdkLibs16Kb(dependsOn: [prepareJSC, prepareHermes, extractJNIFiles]) {
+    doLast {
+        throw new GradleException("Do not patch ELF program headers for 16 KB page-size support. Use shared libraries rebuilt with -Wl,-z,max-page-size=16384 instead.")
+    }
+}
+
 task buildReactNdkLib(dependsOn: [prepareJSC, prepareHermes, prepareBoost, prepareDoubleConversion, prepareFolly, prepareGlog, extractAARHeaders, extractJNIFiles], type: Exec) {
     inputs.dir('src/main/jni/react')
+    inputs.dir(thirdPartyNdkDir)
+    inputs.dir("$projectDir/src/main/jni/first-party/fbjni")
     outputs.dir("$buildDir/react-ndk/all")
     commandLine getNdkBuildFullPath(),
             'NDK_PROJECT_PATH=null',
@@ -327,6 +604,23 @@ task packageReactNdkLibs(dependsOn: buildReactNdkLib, type: Copy) {
     from "$buildDir/react-ndk/all"
     from "$thirdPartyNdkDir/jsc/jni"
     into "$buildDir/react-ndk/exported"
+}
+
+task verifyReactNdkLibs16KbPageSize(dependsOn: packageReactNdkLibs) {
+    doLast {
+        def errors = []
+        // Android devices that require 16 KB pages are arm64-v8a; x86_64 JSC is
+        // still a legacy 4 KB prebuilt in this fork.
+        ["arm64-v8a"].each { abi ->
+            errors.addAll(fileTree(dir: "$buildDir/react-ndk/exported/${abi}", includes: ["*.so"]).files.collectMany {
+                findElf16KbAlignmentErrors(it)
+            })
+        }
+
+        if (!errors.empty) {
+            throw new GradleException("ReactAndroid contains shared libraries that are not 16 KB page-size aligned:\n" + errors.join("\n"))
+        }
+    }
 }
 
 task packageReactNdkLibsForBuck(dependsOn: packageReactNdkLibs, type: Copy) {
@@ -367,7 +661,7 @@ android {
     }
 
     tasks.withType(JavaCompile) {
-        compileTask -> compileTask.dependsOn packageReactNdkLibs
+        compileTask -> compileTask.dependsOn verifyReactNdkLibs16KbPageSize
     }
 
     clean.dependsOn cleanReactNdkLib
@@ -399,9 +693,9 @@ dependencies {
     api "com.squareup.okhttp3:okhttp:${OKHTTP_VERSION}"
     api "com.squareup.okhttp3:okhttp-urlconnection:${OKHTTP_VERSION}"
     api 'com.squareup.okio:okio:2.9.0'
-    api("com.facebook.fbjni:fbjni-java-only:0.3.0")
-    extractHeaders("com.facebook.fbjni:fbjni:0.3.0:headers")
-    extractJNI("com.facebook.fbjni:fbjni:0.3.0")
+    api("com.facebook.fbjni:fbjni-java-only:${FBJNI_VERSION}")
+    extractHeaders("com.facebook.fbjni:fbjni:${FBJNI_VERSION}:headers")
+    extractJNI("com.facebook.fbjni:fbjni:${FBJNI_NATIVE_VERSION}")
 }
 
 apply from: 'release.gradle'

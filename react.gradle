@@ -11,6 +11,29 @@ def inputExcludes = config.inputExcludes ?: ["android/**", "ios/**"]
 def bundleConfig = config.bundleConfig ? "${reactRoot}/${config.bundleConfig}" : null ;
 def enableVmCleanup = config.enableVmCleanup == null ? true : config.enableVmCleanup
 def hermesCommand = config.hermesCommand ?: "${reactRoot}/node_modules/react-native/hermes-engine/%OS-BIN%/hermesc"
+def enable16KbPageSizePackaging = config.enable16KbPageSizePackaging == null ? true : config.enable16KbPageSizePackaging
+
+if (enable16KbPageSizePackaging && !project.hasProperty("android.bundle.enableUncompressedNativeLibs")) {
+    project.ext.set("android.bundle.enableUncompressedNativeLibs", "true")
+}
+
+def configure16KbPageSizePackaging = {
+    if (!enable16KbPageSizePackaging || !plugins.hasPlugin("com.android.application")) {
+        return
+    }
+
+    try {
+        android.packagingOptions {
+            jniLibs {
+                useLegacyPackaging false
+            }
+        }
+    } catch (Throwable ignored) {
+        // Older Android Gradle Plugin versions do not expose jniLibs packagingOptions.
+    }
+}
+
+configure16KbPageSizePackaging()
 
 // Set deleteDebugFilesForVariant to a function to configure per variant,
 // defaults to True for Release variants and False for debug variants
@@ -47,6 +70,7 @@ def enableHermesForVariant = config.enableHermesForVariant ?: {
 
 afterEvaluate {
     def isAndroidLibrary = plugins.hasPlugin("com.android.library")
+    configure16KbPageSizePackaging()
     def variants = isAndroidLibrary ? android.libraryVariants : android.applicationVariants
     variants.all { def variant ->
         // Create variant and target names

@@ -25,8 +25,10 @@ APP_STL := c++_shared
 APP_CFLAGS := -Wall -Werror
 APP_CPPFLAGS := -std=c++17
 APP_LDFLAGS := -Wl,--build-id
+APP_LDFLAGS += -Wl,-z,max-page-size=16384 -Wl,-z,common-page-size=16384
 
-# 16kb page size align, ndk27+
+# 16KB page-size support for NDK r27+. This also hides the PAGE_SIZE macro so
+# fixed page-size assumptions fail at compile time.
 APP_SUPPORT_FLEXIBLE_PAGE_SIZES := true
 
 # ndk27 compile error
